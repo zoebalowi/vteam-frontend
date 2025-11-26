@@ -1,35 +1,82 @@
+import React, { useEffect, useState } from "react";
 import "../styles/dashboard.css";
 import "../styles/page.css";
 import "../styles/widgets.css";
 import "../styles/tables.css";
-import scooters from "../sampleData/scooters";
+import { fetchScooters } from "../api/scooters";
 
 export default function DashboardPage() {
+  const [scooters, setScooters] = useState([]); // <-- remove sample data use
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchScooters()
+      .then((data) => {
+        if (!mounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          setScooters(data);
+          setErrorMsg(null);
+        } else {
+          setScooters([]); // explicit fallback
+          setErrorMsg("Using local mock data or empty list (no scooters from API).");
+          console.warn("fetchScooters returned empty array or non-array result");
+        }
+      })
+      .catch((err) => {
+        if (mounted) {
+          setErrorMsg(err?.message || "Error fetching scooters");
+          setScooters([]); // fallback
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => (mounted = false);
+  }, []);
+
+  const avgBattery =
+    scooters.length > 0
+      ? Math.round(scooters.reduce((acc, s) => acc + (s.battery || 0), 0) / scooters.length)
+      : 0;
+
+  const total = scooters.length;
+  const activeRides = scooters.filter((s) => s.rented).length;
+  const openTickets = scooters.filter((s) => s.battery < 20).length;
+
   return (
     <div className="page-container">
       <h1 className="page-title">Dashboard</h1>
+
+      {errorMsg && (
+        <div style={{ background: "#fff3cd", padding: 10, marginBottom: 12, borderRadius: 4 }}>
+          {errorMsg}
+        </div>
+      )}
 
       {/* ----- TOP WIDGETS ----- */}
       <div className="widgets-grid">
         <div className="card widget-card">
           <div className="stat-label">Total scooters</div>
-          <div className="stat-value">1,000</div>
+          <div className="stat-value">{total}</div>
           <div className="stat-note">+3.4% (30d)</div>
         </div>
 
         <div className="card widget-card">
           <div className="stat-label">Average battery</div>
-          <div className="stat-value">73%</div>
+          <div className="stat-value">{avgBattery}%</div>
         </div>
 
         <div className="card widget-card">
           <div className="stat-label">Active rides</div>
-          <div className="stat-value">78</div>
+          <div className="stat-value">{activeRides}</div>
         </div>
 
         <div className="card widget-card">
           <div className="stat-label">Open tickets</div>
-          <div className="stat-value">12</div>
+          <div className="stat-value">{openTickets}</div>
         </div>
       </div>
 
@@ -59,10 +106,10 @@ export default function DashboardPage() {
                   {scooters.map((s) => (
                     <tr key={s.id}>
                       <td>{s.id}</td>
-                      <td>{s.model}</td>
+                      <td>{s.model || "—"}</td>
                       <td>{s.battery}%</td>
-                      <td>{s.status}</td>
-                      <td>{s.location}</td>
+                      <td>{s.rented ? "Rented" : s.available ? "Available" : "Unavailable"}</td>
+                      <td>{s.coordinates || "—"}</td>
                     </tr>
                   ))}
                 </tbody>

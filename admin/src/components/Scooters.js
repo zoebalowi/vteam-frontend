@@ -1,11 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/dashboard.css";
 import "../styles/page.css";
 import "../styles/widgets.css";
 import "../styles/tables.css";
-import scooters from "../sampleData/scooters";
+import { fetchScooters } from "../api/scooters";
 
 export default function ScootersPage() {
+  const [scooters, setScooters] = useState([]); // <-- empty initial state
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchScooters()
+      .then((data) => {
+        if (!mounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          setScooters(data);
+        } else {
+          setScooters([]); // explicit fallback
+          setErrorMsg("Using empty scooter list (no scooters from API).");
+          console.warn("fetchScooters returned empty array or non-array result");
+        }
+      })
+      .catch((err) => {
+        if (mounted) {
+          setScooters([]); // fallback
+          setErrorMsg(err?.message || "Error fetching scooters");
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const avgBattery =
     scooters.length > 0
       ? Math.round(scooters.reduce((acc, s) => acc + (s.battery || 0), 0) / scooters.length)
@@ -14,6 +46,12 @@ export default function ScootersPage() {
   return (
     <div className="page-container">
       <h1 className="page-title">Scooters</h1>
+
+      {errorMsg && (
+        <div style={{ background: "#fff3cd", padding: 10, marginBottom: 12, borderRadius: 4 }}>
+          {errorMsg}
+        </div>
+      )}
 
       {/* ----- TOP WIDGETS ----- */}
       <div className="widgets-grid">
@@ -30,12 +68,12 @@ export default function ScootersPage() {
 
         <div className="card widget-card">
           <div className="stat-label">Active rides</div>
-          <div className="stat-value">78</div>
+          <div className="stat-value">{scooters.filter((s) => s.rented).length}</div>
         </div>
 
         <div className="card widget-card">
           <div className="stat-label">Open tickets</div>
-          <div className="stat-value">12</div>
+          <div className="stat-value">{scooters.filter((s) => s.battery < 20).length}</div>
         </div>
       </div>
 
@@ -45,28 +83,32 @@ export default function ScootersPage() {
         <div>
           <div className="section-title">All scooters</div>
           <div className="card">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Model</th>
-                  <th>Battery</th>
-                  <th>Status</th>
-                  <th>Location</th>
-                </tr>
-              </thead>
-              <tbody>
-                {scooters.map((s) => (
-                  <tr key={s.id}>
-                    <td>{s.id}</td>
-                    <td>{s.model}</td>
-                    <td>{s.battery}%</td>
-                    <td>{s.status}</td>
-                    <td>{s.location}</td>
+            {loading ? (
+              <div style={{ padding: 24 }}>Loading scooters…</div>
+            ) : (
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Model</th>
+                    <th>Battery</th>
+                    <th>Status</th>
+                    <th>Location</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {scooters.map((s) => (
+                    <tr key={s.id}>
+                      <td>{s.id}</td>
+                      <td>{s.model || "—"}</td>
+                      <td>{s.battery}%</td>
+                      <td>{s.rented ? "Rented" : s.available ? "Available" : "Unavailable"}</td>
+                      <td>{s.coordinates || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
