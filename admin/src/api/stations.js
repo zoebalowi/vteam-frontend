@@ -42,7 +42,6 @@ export async function fetchStations() {
 
       let data = JSON.parse(text);
 
-      // If root object, pick the stations array or the first array
       if (!Array.isArray(data)) {
         if (data && typeof data === "object" && Array.isArray(data.stations)) data = data.stations;
         else {

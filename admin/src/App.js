@@ -1,3 +1,4 @@
+// App.js
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./layout/Layout";
 
@@ -10,15 +11,16 @@ import ReportsPage from "./pages/ReportsPage";
 export default function App() {
   return (
     <Router>
-      <Layout>
-        <Routes>
+      <Routes>
+        {/* Layout wrapper */}
+        <Route element={<Layout />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/scooters" element={<ScootersPage />} />
           <Route path="/stations" element={<StationsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/reports" element={<ReportsPage />} />
-        </Routes>
-      </Layout>
+        </Route>
+      </Routes>
     </Router>
   );
 }

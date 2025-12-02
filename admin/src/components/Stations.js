@@ -6,32 +6,45 @@ import "../styles/tables.css";
 import { fetchStations } from "../api/stations";
 
 export default function StationsPage() {
-  const [stations, setStations] = useState([]); // <-- use empty array instead of sample data
+  const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     let mounted = true;
+
+    const MIN_LOAD_TIME = 600; // x sek
+    const startTime = Date.now();
+
     fetchStations()
       .then((data) => {
         if (!mounted) return;
+
         if (Array.isArray(data) && data.length > 0) {
           setStations(data);
           setErrorMsg(null);
         } else {
-          setStations([]); // explicit fallback
+          setStations([]);
           setErrorMsg("Using local mock data or empty list (no stations from API).");
           console.warn("fetchStations returned empty array or non-array result");
         }
       })
       .catch((err) => {
         if (mounted) {
-          setStations([]); // safe fallback
+          setStations([]);
           setErrorMsg(err?.message || "Error fetching stations");
         }
       })
       .finally(() => {
-        if (mounted) setLoading(false);
+        if (!mounted) return;
+
+        // ⏳ säkerställ minst 2 sek loading
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, MIN_LOAD_TIME - elapsed);
+
+        setTimeout(() => {
+          if (mounted) setLoading(false);
+        }, remaining);
       });
 
     return () => {
@@ -44,6 +57,16 @@ export default function StationsPage() {
   const totalDocks = stations.reduce((acc, s) => acc + (s.capacity || 0), 0);
   const alerts = stations.filter((s) => (s.capacity || 0) < 5).length;
 
+  // 🔵 ---- GLOBAL LOADER -----
+  if (loading) {
+    return (
+      <div className="loader-container">
+        <div className="spinner"></div>
+        <p className="loader-text">Loading stations...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="page-container">
       <h1 className="page-title">Stations</h1>
@@ -54,7 +77,7 @@ export default function StationsPage() {
         </div>
       )}
 
-      {/* ----- TOP WIDGETS (samma styling som Dashboard) ----- */}
+      {/* ----- TOP WIDGETS ----- */}
       <div className="widgets-grid">
         <div className="card widget-card">
           <div className="stat-label">Total stations</div>
@@ -83,19 +106,17 @@ export default function StationsPage() {
         <div>
           <div className="section-title">Stations</div>
           <div className="card">
-            {loading ? (
-              <div style={{ padding: 24 }}>Loading stations…</div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {stations.map((st) => (
-                  <div key={st.id} className="p-4 bg-white rounded-xl shadow-sm">
-                    <div className="font-semibold">{st.name}</div>
-                    <div className="text-sm text-slate-500">Capacity: {st.capacity}</div>
-                    <div className="text-sm text-slate-500">Coordinates: {st.coordinates || "—"}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {stations.map((st) => (
+                <div key={st.id} className="p-4 bg-white rounded-xl shadow-sm">
+                  <div className="font-semibold">{st.name}</div>
+                  <div className="text-sm text-slate-500">Capacity: {st.capacity}</div>
+                  <div className="text-sm text-slate-500">
+                    Coordinates: {st.coordinates || "—"}
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

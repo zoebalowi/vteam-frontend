@@ -15,7 +15,6 @@ export async function fetchScooters() {
         continue;
       }
 
-      // Received HTML (e.g. index.html) -> not JSON
       if (text.trim().startsWith("<")) {
         errors.push({ url, error: "HTML returned (likely wrong host/port)" });
         continue;

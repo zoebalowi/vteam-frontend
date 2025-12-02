@@ -6,20 +6,25 @@ import "../styles/tables.css";
 import { fetchScooters } from "../api/scooters";
 
 export default function DashboardPage() {
-  const [scooters, setScooters] = useState([]); // <-- remove sample data use
+  const [scooters, setScooters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     let mounted = true;
+
+    const MIN_LOAD_TIME = 600; // x seconds
+    const startTime = Date.now();
+
     fetchScooters()
       .then((data) => {
         if (!mounted) return;
+
         if (Array.isArray(data) && data.length > 0) {
           setScooters(data);
           setErrorMsg(null);
         } else {
-          setScooters([]); // explicit fallback
+          setScooters([]);
           setErrorMsg("Using local mock data or empty list (no scooters from API).");
           console.warn("fetchScooters returned empty array or non-array result");
         }
@@ -27,19 +32,39 @@ export default function DashboardPage() {
       .catch((err) => {
         if (mounted) {
           setErrorMsg(err?.message || "Error fetching scooters");
-          setScooters([]); // fallback
+          setScooters([]);
         }
       })
       .finally(() => {
-        if (mounted) setLoading(false);
+        if (!mounted) return;
+
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, MIN_LOAD_TIME - elapsed);
+
+        setTimeout(() => {
+          if (mounted) setLoading(false);
+        }, remaining);
       });
 
     return () => (mounted = false);
   }, []);
 
+  // -------- LOADER UI --------
+  if (loading) {
+    return (
+      <div className="loader-container">
+        <div className="spinner"></div>
+        <p className="loader-text">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  // -------- STATS --------
   const avgBattery =
     scooters.length > 0
-      ? Math.round(scooters.reduce((acc, s) => acc + (s.battery || 0), 0) / scooters.length)
+      ? Math.round(
+          scooters.reduce((acc, s) => acc + (s.battery || 0), 0) / scooters.length
+        )
       : 0;
 
   const total = scooters.length;
@@ -51,7 +76,14 @@ export default function DashboardPage() {
       <h1 className="page-title">Dashboard</h1>
 
       {errorMsg && (
-        <div style={{ background: "#fff3cd", padding: 10, marginBottom: 12, borderRadius: 4 }}>
+        <div
+          style={{
+            background: "#fff3cd",
+            padding: 10,
+            marginBottom: 12,
+            borderRadius: 4,
+          }}
+        >
           {errorMsg}
         </div>
       )}
@@ -108,7 +140,13 @@ export default function DashboardPage() {
                       <td>{s.id}</td>
                       <td>{s.model || "—"}</td>
                       <td>{s.battery}%</td>
-                      <td>{s.rented ? "Rented" : s.available ? "Available" : "Unavailable"}</td>
+                      <td>
+                        {s.rented
+                          ? "Rented"
+                          : s.available
+                          ? "Available"
+                          : "Unavailable"}
+                      </td>
                       <td>{s.coordinates || "—"}</td>
                     </tr>
                   ))}

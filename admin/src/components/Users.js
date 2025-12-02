@@ -12,6 +12,9 @@ export default function UsersPage() {
 
   useEffect(() => {
     let mounted = true;
+    const MIN_LOAD_TIME = 600; // x sek
+    const startTime = Date.now();
+
     fetchUsers()
       .then((data) => {
         if (!mounted) return;
@@ -26,12 +29,19 @@ export default function UsersPage() {
       })
       .catch((err) => {
         if (mounted) {
-          setUsers([]); // safe fallback
+          setUsers([]); 
           setErrorMsg(err?.message || "Error fetching users");
         }
       })
       .finally(() => {
-        if (mounted) setLoading(false);
+        if (!mounted) return;
+
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, MIN_LOAD_TIME - elapsed);
+
+        setTimeout(() => {
+          if (mounted) setLoading(false);
+        }, remaining);
       });
 
     return () => {
@@ -39,10 +49,20 @@ export default function UsersPage() {
     };
   }, []);
 
+  /** LOADING SCREEN */
+  if (loading) {
+    return (
+      <div className="loader-container">
+        <div className="spinner"></div>
+        <p className="loader-text">Loading users...</p>
+      </div>
+    );
+  }
+
   const total = users.length;
-  const active7d = total; // placeholder — no rentals fetch implemented
-  const avgRides = 0; // placeholder for now
-  const openTickets = 0; // placeholder for now
+  const active7d = total;
+  const avgRides = 0;
+  const openTickets = 0;
 
   return (
     <div className="page-container">
@@ -84,23 +104,19 @@ export default function UsersPage() {
         <div>
           <div className="section-title">All users</div>
           <div className="card">
-            {loading ? (
-              <div style={{ padding: 24 }}>Loading users…</div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {users.map((u) => (
-                  <div key={u.id} className="p-4 bg-white rounded-xl shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-slate-200" />
-                      <div>
-                        <div className="font-semibold">{u.name}</div>
-                        <div className="text-sm text-slate-500">{u.email}</div>
-                      </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {users.map((u) => (
+                <div key={u.id} className="p-4 bg-white rounded-xl shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-slate-200" />
+                    <div>
+                      <div className="font-semibold">{u.name}</div>
+                      <div className="text-sm text-slate-500">{u.email}</div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
