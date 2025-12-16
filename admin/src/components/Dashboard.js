@@ -4,9 +4,12 @@ import "../styles/page.css";
 import "../styles/widgets.css";
 import "../styles/tables.css";
 import { fetchScooters } from "../api/scooters";
+import { fetchStations } from "../api/stations";
+import Map from "./Map";
 
 export default function DashboardPage() {
   const [scooters, setScooters] = useState([]);
+  const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -16,23 +19,28 @@ export default function DashboardPage() {
     const MIN_LOAD_TIME = 600; // x seconds
     const startTime = Date.now();
 
-    fetchScooters()
-      .then((data) => {
+    Promise.all([fetchScooters(), fetchStations()])
+      .then(([scootersData, stationsData]) => {
         if (!mounted) return;
 
-        if (Array.isArray(data) && data.length > 0) {
-          setScooters(data);
+        if (Array.isArray(scootersData)) setScooters(scootersData);
+        else setScooters([]);
+
+        if (Array.isArray(stationsData)) setStations(stationsData);
+        else setStations([]);
+
+        if ((Array.isArray(scootersData) && scootersData.length > 0) || (Array.isArray(stationsData) && stationsData.length > 0)) {
           setErrorMsg(null);
         } else {
-          setScooters([]);
-          setErrorMsg("Using local mock data or empty list (no scooters from API).");
-          console.warn("fetchScooters returned empty array or non-array result");
+          setErrorMsg("Using local mock data or empty lists (no data from API).");
+          console.warn("fetch returned empty arrays or non-array results");
         }
       })
       .catch((err) => {
         if (mounted) {
-          setErrorMsg(err?.message || "Error fetching scooters");
+          setErrorMsg(err?.message || "Error fetching data");
           setScooters([]);
+          setStations([]);
         }
       })
       .finally(() => {
@@ -118,7 +126,19 @@ export default function DashboardPage() {
         <div>
           <div className="section-title">Map</div>
           <div className="card map-card">
-            <div className="map-placeholder">Map placeholder</div>
+            <div className="map-placeholder">
+              <Map
+                center={[59.3293, 18.0686]}
+                zoom={12}
+                markers={
+                  // combine station and scooter markers
+                  [
+                    ...stations.filter(s => s.coords).map(s => ({ position: [s.coords.lat, s.coords.lng], popup: s.name, type: 'station' })),
+                    ...scooters.filter(s => s.coords).map(s => ({ position: [s.coords.lat, s.coords.lng], popup: `Battery: ${s.battery}%`, type: 'scooter', available: s.available }))
+                  ]
+                }
+              />
+            </div>
           </div>
 
           <div className="section" style={{ marginTop: 20 }}>
