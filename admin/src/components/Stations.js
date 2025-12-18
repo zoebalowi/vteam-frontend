@@ -12,21 +12,18 @@ export default function StationsPage() {
 
   useEffect(() => {
     let mounted = true;
-
-    const MIN_LOAD_TIME = 600; // x sek
+    const MIN_LOAD_TIME = 600;
     const startTime = Date.now();
 
     fetchStations()
       .then((data) => {
         if (!mounted) return;
-
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setStations(data);
           setErrorMsg(null);
         } else {
           setStations([]);
-          setErrorMsg("Using local mock data or empty list (no stations from API).");
-          console.warn("fetchStations returned empty array or non-array result");
+          setErrorMsg("No stations from API (empty list).");
         }
       })
       .catch((err) => {
@@ -36,15 +33,9 @@ export default function StationsPage() {
         }
       })
       .finally(() => {
-        if (!mounted) return;
-
-        // ⏳ säkerställ minst 2 sek loading
         const elapsed = Date.now() - startTime;
         const remaining = Math.max(0, MIN_LOAD_TIME - elapsed);
-
-        setTimeout(() => {
-          if (mounted) setLoading(false);
-        }, remaining);
+        setTimeout(() => mounted && setLoading(false), remaining);
       });
 
     return () => {
@@ -52,12 +43,45 @@ export default function StationsPage() {
     };
   }, []);
 
+  /* -------- SEARCH & SORT STATE -------- */
+  const [query, setQuery] = useState("");
+  const [sortKey, setSortKey] = useState("name");
+  const [sortDir, setSortDir] = useState("asc");
+
+  function toggleSort(key) {
+    if (sortKey === key) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
+
+  /* -------- FILTER & SORT -------- */
+  const filteredStations = stations
+    .filter((s) => {
+      if (!query) return true;
+      const q = query.toLowerCase();
+      return (
+        (s.name || "").toLowerCase().includes(q) ||
+        String(s.id).includes(q)
+      );
+    })
+    .sort((a, b) => {
+      const A = (a[sortKey] ?? "").toString().toLowerCase();
+      const B = (b[sortKey] ?? "").toString().toLowerCase();
+      if (A < B) return sortDir === "asc" ? -1 : 1;
+      if (A > B) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+
+  /* -------- STATS -------- */
   const total = stations.length;
   const active = stations.filter((s) => (s.capacity || 0) > 0).length;
   const totalDocks = stations.reduce((acc, s) => acc + (s.capacity || 0), 0);
   const alerts = stations.filter((s) => (s.capacity || 0) < 5).length;
 
-  // 🔵 ---- GLOBAL LOADER -----
+  /* -------- LOADING -------- */
   if (loading) {
     return (
       <div className="loader-container">
@@ -104,19 +128,65 @@ export default function StationsPage() {
       <div className="section-grid">
         {/* LEFT SIDE */}
         <div>
-          <div className="section-title">Stations</div>
+          <div className="section-title">All stations</div>
           <div className="card">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {stations.map((st) => (
-                <div key={st.id} className="p-4 bg-white rounded-xl shadow-sm">
-                  <div className="font-semibold">{st.name}</div>
-                  <div className="text-sm text-slate-500">Capacity: {st.capacity}</div>
-                  <div className="text-sm text-slate-500">
-                    Coordinates: {st.coordinates || "—"}
-                  </div>
-                </div>
-              ))}
+
+            {/* SEARCH + SORT */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 12,
+              }}
+            >
+              <input
+                type="search"
+                placeholder="Search by station name"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                style={{
+                  padding: "8px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #ddd",
+                  minWidth: 220,
+                }}
+              />
+
+              <button className="btn-outline" onClick={() => toggleSort("name")}>
+                Sort: {sortKey} {sortDir === "asc" ? "↑" : "↓"}
+              </button>
             </div>
+
+            {/* TABLE */}
+            <table className="table" style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th style={{ width: 120 }}>Capacity</th>
+                  <th>Coordinates</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStations.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} style={{ textAlign: "center", padding: 20 }}>
+                      No stations found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStations.map((st) => (
+                    <tr key={st.id}>
+                      <td style={{ fontWeight: 600 }}>{st.name}</td>
+                      <td>{st.capacity ?? 0}</td>
+                      <td style={{ fontSize: 13, color: "#6b7280" }}>
+                        {st.coordinates || "—"}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -124,20 +194,10 @@ export default function StationsPage() {
         <aside>
           <div className="section">
             <div className="section-title">Quick actions</div>
-
             <div className="quick-actions">
               <button className="btn-primary">Add station</button>
               <button className="btn-outline">Export</button>
             </div>
-          </div>
-
-          <div className="section">
-            <div className="section-title">Recent issues</div>
-
-            <ul className="issues-list">
-              <li>Station 3 — Low docks</li>
-              <li>Station 5 — Maintenance</li>
-            </ul>
           </div>
         </aside>
       </div>

@@ -123,7 +123,6 @@ export default function ScootersPage() {
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Model</th>
                   <th>Battery</th>
                   <th>Status</th>
                   <th>Location</th>
@@ -133,7 +132,6 @@ export default function ScootersPage() {
                 {scooters.map((s) => (
                   <tr key={s.id}>
                     <td>{s.id}</td>
-                    <td>{s.model || "—"}</td>
                     <td>{s.battery}%</td>
                     <td>
                       {s.rented
@@ -159,15 +157,6 @@ export default function ScootersPage() {
               <button className="btn-primary">Add scooter</button>
               <button className="btn-outline">Export</button>
             </div>
-          </div>
-
-          <div className="section">
-            <div className="section-title">Recent issues</div>
-
-            <ul className="issues-list">
-              <li>S-1003 — Needs service</li>
-              <li>S-1002 — Charging</li>
-            </ul>
           </div>
         </aside>
       </div>

@@ -1,4 +1,5 @@
-const defaultBase = "http://localhost:3000";
+// Use relative paths by default so the CRA dev server proxy (set in package.json) can forward requests
+const defaultBase = "";
 const baseFromEnv = process.env.REACT_APP_API_URL || defaultBase;
 const base = baseFromEnv.replace(/\/$/, "");
 
@@ -18,6 +19,7 @@ function normalizeUser(u) {
 
 export async function fetchUsers() {
   const candidates = [
+    `${base}/v1/users`,
     `${base}/users`,
     `${base}/api/users`,
     `${base}/db/users`,
@@ -68,4 +70,36 @@ export async function fetchUsers() {
 
   const msg = errors.map((e) => `${e.url} — ${e.status || e.error || e.message}`).join("; ");
   throw new Error(`Could not fetch users. Tried: ${msg}`);
+}
+
+export async function fetchUser(id) {
+  const candidates = [`${base}/v1/users/${id}`, `${base}/users/${id}`];
+  const errors = [];
+
+  for (const url of candidates) {
+    console.info(`[fetchUser] trying ${url}`);
+    try {
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) {
+        errors.push({ url, status: res.status });
+        continue;
+      }
+
+      const data = await res.json();
+      let u = data.user ?? data;
+      if (Array.isArray(u)) u = u[0] ?? null;
+      if (!u) {
+        errors.push({ url, error: "No user in response" });
+        continue;
+      }
+
+      return normalizeUser(u);
+    } catch (err) {
+      errors.push({ url, message: err.message });
+      continue;
+    }
+  }
+
+  const msg = errors.map((e) => `${e.url} — ${e.status || e.error || e.message}`).join("; ");
+  throw new Error(`Could not fetch user ${id}. Tried: ${msg}`);
 }

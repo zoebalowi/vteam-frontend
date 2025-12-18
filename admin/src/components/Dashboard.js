@@ -148,7 +148,6 @@ export default function DashboardPage() {
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Model</th>
                     <th>Battery</th>
                     <th>Status</th>
                     <th>Location</th>
@@ -158,7 +157,6 @@ export default function DashboardPage() {
                   {scooters.map((s) => (
                     <tr key={s.id}>
                       <td>{s.id}</td>
-                      <td>{s.model || "—"}</td>
                       <td>{s.battery}%</td>
                       <td>
                         {s.rented
