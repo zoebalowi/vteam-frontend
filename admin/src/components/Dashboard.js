@@ -101,7 +101,6 @@ export default function DashboardPage() {
         <div className="card widget-card">
           <div className="stat-label">Total scooters</div>
           <div className="stat-value">{total}</div>
-          <div className="stat-note">+3.4% (30d)</div>
         </div>
 
         <div className="card widget-card">

@@ -1,9 +1,61 @@
-import React from "react";
+
+import React, { useState, useEffect } from "react";
 import "../styles/dashboard.css";
 import "../styles/page.css";
 import "../styles/widgets.css";
+import { getPrice, updatePrice } from "../api/price";
 
 export default function ReportsPage() {
+  const defaultPerMinute = 0.25;
+  const [perMinute, setPerMinute] = useState(defaultPerMinute);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    async function fetchPrice() {
+      setLoading(true);
+      try {
+        if (!token) throw new Error("No token");
+        const data = await getPrice(token);
+        setPerMinute(data.perMinute ?? defaultPerMinute);
+      } catch (e) {
+        setStatusMessage("Failed to load pricing");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPrice();
+    // eslint-disable-next-line
+  }, []);
+
+  const handleChange = (e) => {
+    const value = parseFloat(e.target.value);
+    setPerMinute(Number.isNaN(value) ? "" : value);
+  };
+
+  const savePricing = async () => {
+    if (perMinute < 0) {
+      setStatusMessage("Please enter a non-negative value.");
+      return;
+    }
+    try {
+      if (!token) throw new Error("No token");
+      await updatePrice({ perMinute }, token);
+      setStatusMessage("Saved");
+    } catch (e) {
+      setStatusMessage("Failed to save");
+    }
+    setTimeout(() => setStatusMessage(""), 3000);
+  };
+
+  const resetPricing = () => {
+    setPerMinute(defaultPerMinute);
+    setStatusMessage("Reset to default (not saved)");
+    setTimeout(() => setStatusMessage(""), 3000);
+  };
+
   return (
     <div className="page-container">
       <h1 className="page-title">Reports</h1>
@@ -13,7 +65,6 @@ export default function ReportsPage() {
         <div className="card widget-card">
           <div className="stat-label">Total rides</div>
           <div className="stat-value">4,213</div>
-          <div className="stat-note">+2.1% (30d)</div>
         </div>
 
         <div className="card widget-card">
@@ -71,6 +122,32 @@ export default function ReportsPage() {
               <li>Battery degradation 10% on 12 scooters</li>
               <li>Spike in rides last weekend</li>
             </ul>
+          </div>
+
+          <div className="section">
+            <div className="section-title">Pricing settings</div>
+
+            <div className="card">
+
+              <label className="field-label">Cost per minute (SEK)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={perMinute}
+                onChange={handleChange}
+                className="input-field"
+                disabled={loading}
+              />
+
+              <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+                <button className="btn-primary" onClick={savePricing} disabled={loading}>Save</button>
+                <button className="btn-outline" onClick={resetPricing} disabled={loading}>Reset</button>
+              </div>
+
+              {loading && <div style={{ marginTop: 8, color: "var(--muted)" }}>Loading...</div>}
+              {statusMessage && <div style={{ marginTop: 8, color: "var(--muted)" }}>{statusMessage}</div>}
+            </div>
           </div>
         </aside>
       </div>

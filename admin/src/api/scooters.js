@@ -15,7 +15,7 @@ export async function fetchScooters() {
   for (const url of candidates) {
     console.info(`[fetchScooters] trying ${url}`);
     try {
-      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      const res = await fetch(url, { headers: { Accept: "application/json", 'x-access-token': localStorage.getItem('token') } });
       const text = await res.text();
 
       if (!res.ok) {
@@ -97,7 +97,7 @@ export async function fetchScooter(id) {
   for (const url of candidates) {
     console.info(`[fetchScooter] trying ${url}`);
     try {
-      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      const res = await fetch(url, { headers: { Accept: "application/json", 'x-access-token': localStorage.getItem('token') } });
       if (!res.ok) {
         errors.push({ url, status: res.status });
         continue;

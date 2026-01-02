@@ -102,7 +102,6 @@ export default function UsersPage() {
         <div className="card widget-card">
           <div className="stat-label">Total users</div>
           <div className="stat-value">{total}</div>
-          <div className="stat-note">+0.8% (30d)</div>
         </div>
 
         <div className="card widget-card">

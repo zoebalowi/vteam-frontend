@@ -90,7 +90,6 @@ export default function ScootersPage() {
         <div className="card widget-card">
           <div className="stat-label">Total scooters</div>
           <div className="stat-value">{scooters.length}</div>
-          <div className="stat-note">+1.2% (30d)</div>
         </div>
 
         <div className="card widget-card">

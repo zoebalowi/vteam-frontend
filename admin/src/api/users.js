@@ -33,7 +33,7 @@ export async function fetchUsers() {
   for (const url of candidates) {
     console.info(`[fetchUsers] trying ${url}`);
     try {
-      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      const res = await fetch(url, { headers: { Accept: "application/json", 'x-access-token': localStorage.getItem('token') } });
       const text = await res.text();
 
       if (!res.ok) {
@@ -79,7 +79,7 @@ export async function fetchUser(id) {
   for (const url of candidates) {
     console.info(`[fetchUser] trying ${url}`);
     try {
-      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      const res = await fetch(url, { headers: { Accept: "application/json", 'x-access-token': localStorage.getItem('token') } });
       if (!res.ok) {
         errors.push({ url, status: res.status });
         continue;

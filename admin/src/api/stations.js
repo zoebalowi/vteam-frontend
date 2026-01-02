@@ -23,7 +23,7 @@ export async function fetchStations() {
   for (const url of candidates) {
     console.info(`[fetchStations] trying ${url}`);
     try {
-      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      const res = await fetch(url, { headers: { Accept: "application/json", 'x-access-token': localStorage.getItem('token') } });
       if (!res.ok) {
         errors.push({ url, status: res.status, statusText: res.statusText });
         continue;
