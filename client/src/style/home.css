@@ -1,0 +1,182 @@
+.home-centered {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.home-card {
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px #eee;
+  padding: 24px;
+}
+
+.home-title {
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-info {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.home-section-title {
+  font-weight: 600;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.home-muted {
+  color: var(--muted, #888);
+}
+
+.home-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.home-action-btn {
+  font-size: 1rem;
+  padding: 10px 24px;
+}
+.page-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #1a1a1a;
+}
+
+.widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.widget-card {
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.map-card {
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-placeholder {
+  color: #999;
+  font-size: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #f5f5f5;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.btn-primary,
+.btn-outline,
+.btn-small {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: #fff;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #007bff;
+  color: #007bff;
+  width: 100%;
+}
+
+.btn-small {
+  background: #007bff;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+}
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .section-grid {
+    grid-template-columns: 1fr;
+  }
+}
