@@ -5,6 +5,7 @@ import "../styles/widgets.css";
 import "../styles/tables.css";
 import { fetchScooters } from "../api/scooters";
 import { fetchStations } from "../api/stations";
+import { useScooterSocket } from "../socket/socket.js";
 import Map from "./Map";
 
 export default function DashboardPage() {
@@ -13,6 +14,20 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  useScooterSocket((update) => {
+    setScooters((prev) =>
+      prev.map((s) =>
+        s.id === update.id
+          ? {
+              ...s,
+              coords: { lat: update.lat, lng: update.lng },
+              coordinates: `${update.lat},${update.lng}`,
+            }
+          : s
+      )
+    );
+  });
+  
   useEffect(() => {
     let mounted = true;
 
@@ -56,6 +71,8 @@ export default function DashboardPage() {
 
     return () => (mounted = false);
   }, []);
+   console.log("Stations:", stations);
+  console.log("Scooters:", scooters);
 
   // -------- LOADER UI --------
   if (loading) {
@@ -129,13 +146,30 @@ export default function DashboardPage() {
               <Map
                 center={[59.3293, 18.0686]}
                 zoom={12}
-                markers={
-                  // combine station and scooter markers
-                  [
-                    ...stations.filter(s => s.coords).map(s => ({ position: [s.coords.lat, s.coords.lng], popup: s.name, type: 'station' })),
-                    ...scooters.filter(s => s.coords).map(s => ({ position: [s.coords.lat, s.coords.lng], popup: `Battery: ${s.battery}%`, type: 'scooter', available: s.available }))
-                  ]
-                }
+                markers={[
+                  ...stations
+                    .filter(s => s.coordinates)
+                    .map(s => {
+                      const [lat, lng] = s.coordinates.split(",").map(Number);
+                      return {
+                        position: [lat, lng],
+                        popup: s.name,
+                        type: "station"
+                      };
+                    }),
+
+                  ...scooters
+                    .filter(s => s.coordinates)
+                    .map(s => {
+                      const [lat, lng] = s.coordinates.split(",").map(Number);
+                      return {
+                        position: [lat, lng],
+                        popup: `Battery: ${s.battery}%`,
+                        type: "scooter",
+                        available: s.available
+                      };
+                    })
+                ]}
               />
             </div>
           </div>
