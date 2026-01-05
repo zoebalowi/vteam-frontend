@@ -1,0 +1,94 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh; /* gör att layout fyller hela höjden */
+}
+
+.sidebar {
+  width: 240px;            /* justera bredd efter behov */
+  background: #1e3b22;
+  color: #fff;
+  padding: 1rem;
+  box-sizing: border-box;
+  height: 100vh;           /* täcker hela viewport höjden */
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.sidebar .logo {
+  margin-bottom: 1.5rem;
+}
+
+.sidebar .logo-img {
+  max-width: 100%;
+  height: auto;
+}
+
+.main-area {
+  flex: 1;
+  background: #f5f5f5;
+  overflow: auto;
+}
+
+.main-content {
+  padding: 1.5rem;
+}
+
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px 10px 10px;
+    height: auto; /* or auto */
+}
+
+.sidebar .logo-img {
+    width: 180px;      /* adjust as needed */
+    object-fit: contain;
+    display: block;
+}
+
+.sidebar .logo-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
+
+.sidebar a {
+    color: #cbd5e1;
+    text-decoration: none;
+    display: block;
+    padding: 15px 25px;
+}
+
+.sidebar a:hover {
+    background: #365533;
+    color: #fff;
+}
+
+.sidebar a.active {
+    background: #0ea5e9;
+    color: white;
+}
+.logout-btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    width: 100%;
+    transition: background 0.3s;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
+}
