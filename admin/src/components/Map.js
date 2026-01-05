@@ -1,10 +1,38 @@
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+// Flytta kartan när center/zoom ändras
+function MapCenterUpdater({ center, zoom }) {
+  const map = useMap();
+  const prevCenter = React.useRef(center);
+  const prevZoom = React.useRef(zoom);
+
+  React.useEffect(() => {
+    if (!map || !center) return;
+    // Om stad byts, animera utzoomning och sedan inzoomning
+    if (
+      prevCenter.current[0] !== center[0] ||
+      prevCenter.current[1] !== center[1]
+    ) {
+      // Zooma ut först (till t.ex. 8)
+      map.flyTo(prevCenter.current, 8, { animate: true, duration: 0.5 });
+      setTimeout(() => {
+        map.flyTo(center, zoom, { animate: true, duration: 0.5 });
+        prevCenter.current = center;
+        prevZoom.current = zoom;
+      }, 500); // Vänta 0.5s, sedan zooma in
+    } else {
+      // Om bara zoom ändras, animera till nytt zoom
+      map.flyTo(center, zoom, { animate: true, duration: 1 });
+      prevZoom.current = zoom;
+    }
+  }, [center, zoom, map]);
+  return null;
+}
 
 // Fix default marker icons (bundlers sometimes miss them)
 L.Icon.Default.mergeOptions({
@@ -36,9 +64,10 @@ function getIconForMarker(m) {
   return undefined;
 }
 
-export default function Map({ center=[59.3293, 18.0686], zoom=13, markers=[] , style={ height: '400px' } }) {
+export default function Map({ center=[55.6050, 13.0038], zoom=13, markers=[] , style={ height: '400px' } }) {
   return (
     <MapContainer center={center} zoom={zoom} style={style}>
+      <MapCenterUpdater center={center} zoom={zoom} />
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       {markers.map((m, i) => {
         const icon = getIconForMarker(m);

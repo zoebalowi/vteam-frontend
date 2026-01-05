@@ -22,7 +22,7 @@ export default function Sidebar() {
             <a href="/scooters">Scooters</a>
             <a href="/stations">Stations</a>
             <a href="/users">Users</a>
-            <a href="/reports">Reports</a>
+            <a href="/livemap">Live Map</a>
 
             <button onClick={handleLogout} style={{marginTop: 24, width: "90%", alignSelf: "center"}}>
                 Logga ut

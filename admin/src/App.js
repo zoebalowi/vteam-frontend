@@ -9,7 +9,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ScootersPage from "./pages/ScootersPage";
 import StationsPage from "./pages/StationsPage";
 import UsersPage from "./pages/UsersPage";
-import ReportsPage from "./pages/ReportsPage";
+import LiveMapPage from "./pages/LiveMapPage";
 
 export default function App() {
   return (
@@ -22,7 +22,7 @@ export default function App() {
           <Route path="/scooters" element={<ScootersPage />} />
           <Route path="/stations" element={<StationsPage />} />
           <Route path="/users" element={<UsersPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/livemap" element={<LiveMapPage />} />
         </Route>
       </Routes>
     </Router>

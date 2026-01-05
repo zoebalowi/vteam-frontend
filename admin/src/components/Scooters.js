@@ -4,6 +4,8 @@ import "../styles/page.css";
 import "../styles/widgets.css";
 import "../styles/tables.css";
 import { fetchScooters } from "../api/scooters";
+import "../styles/price-control.css";
+import { getPrice, updatePrice } from "../api/price";
 
 export default function ScootersPage() {
   const [scooters, setScooters] = useState([]);
@@ -56,8 +58,32 @@ export default function ScootersPage() {
         )
       : 0;
 
-  // -------------------------
-  // GLOBAL LOADER (same as Dashboard)
+  // Pris per minut state
+  const [price, setPrice] = useState(0);
+  const [editPrice, setEditPrice] = useState(false);
+  const [inputPrice, setInputPrice] = useState(0);
+  const [savingPrice, setSavingPrice] = useState(false);
+  const [priceError, setPriceError] = useState("");
+
+  useEffect(() => {
+    getPrice().then(p => {
+      setPrice(p.perMinute);
+      setInputPrice(p.perMinute);
+    }).catch(() => setPrice(0.25));
+  }, []);
+
+  async function handleSavePrice() {
+    setSavingPrice(true);
+    setPriceError("");
+    try {
+      await updatePrice({ price: Number(inputPrice) });
+      setPrice(Number(inputPrice));
+      setEditPrice(false);
+    } catch (e) {
+      setPriceError("Kunde inte spara priset");
+    }
+    setSavingPrice(false);
+  }
   // -------------------------
   if (loading) {
     return (
@@ -150,11 +176,30 @@ export default function ScootersPage() {
         {/* RIGHT SIDEBAR */}
         <aside>
           <div className="section">
-            <div className="section-title">Quick actions</div>
-
-            <div className="quick-actions">
-              <button className="btn-primary">Add scooter</button>
-              <button className="btn-outline">Export</button>
+            <div className="section-title">Ändra pris på resa</div>
+            <div className="price-control-container">
+              <div className="price-control-label">Pris per minut (kr):</div>
+              <div className="price-control-value-row">
+                <span className="price-control-value">{price.toFixed(2)}</span>
+                {!editPrice && (
+                  <button className="price-control-btn" onClick={() => setEditPrice(true)}>Ändra</button>
+                )}
+              </div>
+              {editPrice && (
+                <div className="price-control-edit-row">
+                  <input
+                    className="price-control-input"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={inputPrice}
+                    onChange={e => setInputPrice(e.target.value)}
+                  />
+                  <button className="price-control-btn" onClick={handleSavePrice} disabled={savingPrice}>Spara</button>
+                  <button className="price-control-btn" onClick={() => { setEditPrice(false); setInputPrice(price); }}>Avbryt</button>
+                </div>
+              )}
+              {priceError && <div className="price-control-error">{priceError}</div>}
             </div>
           </div>
         </aside>

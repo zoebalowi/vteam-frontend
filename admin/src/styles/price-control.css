@@ -1,0 +1,71 @@
+/* price-control.css: Styling för pris per minut-kontroll i Scooters.js */
+
+.price-control-container {
+  margin-top: 24px;
+  padding: 16px 12px;
+  background: #223b27;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.price-control-label {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+}
+
+.price-control-value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.price-control-value {
+  font-weight: 600;
+  color: #fff;
+  font-size: 18px;
+}
+
+.price-control-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.price-control-input {
+  width: 60px;
+  font-size: 13px;
+  padding: 2px 4px;
+}
+
+.price-control-error {
+  color: #f87171;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.price-control-btn {
+  font-size: 12px;
+  padding: 2px 8px;
+  background: #365533;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.price-control-btn:disabled {
+  background: #888;
+  cursor: not-allowed;
+}
+
+.price-control-btn:not(:last-child) {
+  margin-right: 4px;
+}
