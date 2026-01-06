@@ -13,7 +13,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     let mounted = true;
-    const MIN_LOAD_TIME = 600; // x sek
+    const MIN_LOAD_TIME = 600;
     const startTime = Date.now();
 
     fetchUsers()
@@ -50,12 +50,10 @@ export default function UsersPage() {
     };
   }, []);
 
-  // UI state for search/sort
   const [query, setQuery] = useState('');
   const [sortKey, setSortKey] = useState('name');
   const [sortDir, setSortDir] = useState('asc');
 
-  /** LOADING SCREEN */
   if (loading) {
     return (
       <div className="loader-container">

@@ -7,7 +7,6 @@ import "../styles/dashboard.css";
 import "../styles/page.css";
 import "../styles/widgets.css";
 
-// Gemensam marker-funktion (kan flyttas till utils om du vill återanvända)
 function createMarkers(stations, scooters) {
 	return [
 		...stations.filter(s => s.coords).map(s => ({
@@ -34,7 +33,6 @@ export default function LiveMap() {
 	const [stations, setStations] = useState([]);
 	const [loading, setLoading] = useState(true);
 
-	// Hämta städer
 	useEffect(() => {
 		fetchCities().then((data) => {
 			setCities(data);
@@ -44,7 +42,6 @@ export default function LiveMap() {
 		});
 	}, []);
 
-	// Hämta scooters och stations
 	useEffect(() => {
 		let mounted = true;
 		Promise.all([fetchScooters(), fetchStations()])
@@ -59,7 +56,6 @@ export default function LiveMap() {
 		return () => (mounted = false);
 	}, []);
 
-	// Uppdatera kartans centrum när stad byts
 	useEffect(() => {
 		const cityObj = cities.find(c => c.name === selectedCity);
 		if (cityObj && typeof cityObj.zone === 'string') {
@@ -80,10 +76,8 @@ export default function LiveMap() {
 		);
 	}
 
-	// Visa ALLA stationer och scooters oavsett vald stad
 	const markers = createMarkers(stations, scooters);
 
-	// Använd unikt key för varje marker
 	const markersWithKey = markers.map((m, i) => ({
 		...m,
 		key: m.type + '-' + (m.id ?? i) + '-' + m.position.join(',')

@@ -13,20 +13,17 @@ function MapCenterUpdater({ center, zoom }) {
 
   React.useEffect(() => {
     if (!map || !center) return;
-    // Om stad byts, animera utzoomning och sedan inzoomning
     if (
       prevCenter.current[0] !== center[0] ||
       prevCenter.current[1] !== center[1]
     ) {
-      // Zooma ut först (till t.ex. 8)
       map.flyTo(prevCenter.current, 8, { animate: true, duration: 0.5 });
       setTimeout(() => {
         map.flyTo(center, zoom, { animate: true, duration: 0.5 });
         prevCenter.current = center;
         prevZoom.current = zoom;
-      }, 500); // Vänta 0.5s, sedan zooma in
+      }, 500);
     } else {
-      // Om bara zoom ändras, animera till nytt zoom
       map.flyTo(center, zoom, { animate: true, duration: 1 });
       prevZoom.current = zoom;
     }
@@ -34,14 +31,12 @@ function MapCenterUpdater({ center, zoom }) {
   return null;
 }
 
-// Fix default marker icons (bundlers sometimes miss them)
 L.Icon.Default.mergeOptions({
   iconRetinaUrl,
   iconUrl,
   shadowUrl,
 });
 
-// Small helper to create a simple SVG divIcon for custom pins
 function createSvgIcon({ color = '#2b6cb0', symbol = '' } = {}) {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 24 34" fill="none">
@@ -54,10 +49,10 @@ function createSvgIcon({ color = '#2b6cb0', symbol = '' } = {}) {
 }
 
 
-const stationIcon = createSvgIcon({ color: '#2b6cb0' }); // blue
-const scooterAvailableIcon = createSvgIcon({ color: '#10b981' }); // green
-const scooterRentedIcon = createSvgIcon({ color: '#f87171' }); // red
-const scooterOtherIcon = createSvgIcon({ color: '#f59e0b' }); // amber
+const stationIcon = createSvgIcon({ color: '#2b6cb0' });
+const scooterAvailableIcon = createSvgIcon({ color: '#10b981' });
+const scooterRentedIcon = createSvgIcon({ color: '#f87171' });
+const scooterOtherIcon = createSvgIcon({ color: '#f59e0b' });
 
 function getIconForMarker(m) {
   if (!m || !m.type) return undefined;

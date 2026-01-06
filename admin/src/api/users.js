@@ -1,4 +1,3 @@
-// Use relative paths by default so the CRA dev server proxy (set in package.json) can forward requests
 const defaultBase = "";
 const baseFromEnv = process.env.REACT_APP_API_URL || defaultBase;
 const base = baseFromEnv.replace(/\/$/, "");

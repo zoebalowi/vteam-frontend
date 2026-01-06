@@ -188,7 +188,15 @@ export default function StationsPage() {
 
         {/* RIGHT SIDEBAR */}
         <aside>
-
+          <div className="section stats-widget">
+            <div className="section-title">Statistik</div>
+            <ul className="stats-list">
+              <li><span className="stats-label">Totalt antal stationer:</span> <span className="stats-value">{stations.length}</span></li>
+              <li><span className="stats-label">Medelkapacitet:</span> <span className="stats-value">{stations.length > 0 ? Math.round(stations.reduce((acc, s) => acc + (s.capacity || 0), 0) / stations.length) : 0}</span></li>
+              <li><span className="stats-label">Stationer med lediga platser:</span> <span className="stats-value">{stations.filter(s => (s.capacity || 0) > 0).length}</span></li>
+              <li><span className="stats-label">Stationer med låg kapacitet (&lt;5):</span> <span className="stats-value">{stations.filter(s => (s.capacity || 0) < 5).length}</span></li>
+            </ul>
+          </div>
         </aside>
       </div>
     </div>

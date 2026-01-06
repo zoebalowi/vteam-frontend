@@ -12,7 +12,6 @@ import Map from "./Map";
 export default function DashboardPage() {
   const [scooters, setScooters] = useState([]);
   const [stations, setStations] = useState([]);
-  // Sortera stationer efter capacity (fallande) och ta topp 5
   const topStations = [...stations]
     .sort((a, b) => (b.capacity || 0) - (a.capacity || 0))
     .slice(0, 5);
@@ -36,7 +35,7 @@ export default function DashboardPage() {
   useEffect(() => {
     let mounted = true;
 
-    const MIN_LOAD_TIME = 600; // x seconds
+    const MIN_LOAD_TIME = 600;
     const startTime = Date.now();
 
     Promise.all([fetchScooters(), fetchStations()])
@@ -99,7 +98,11 @@ export default function DashboardPage() {
 
   const total = scooters.length;
   const activeRides = scooters.filter((s) => s.rented).length;
-  const openTickets = scooters.filter((s) => s.battery < 20).length;
+
+  const availableDocks = stations.reduce((sum, station) => {
+    const scootersAtStation = scooters.filter(s => s.stationId === station.id).length;
+    return sum + Math.max(0, (station.capacity || 0) - scootersAtStation);
+  }, 0);
 
   return (
     <div className="page-container">
@@ -136,8 +139,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="card widget-card">
-          <div className="stat-label">Open tickets</div>
-          <div className="stat-value">{openTickets}</div>
+          <div className="stat-label">Available docks</div>
+          <div className="stat-value">{availableDocks}</div>
         </div>
       </div>
 

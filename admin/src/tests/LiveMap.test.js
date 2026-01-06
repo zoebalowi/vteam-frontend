@@ -1,11 +1,9 @@
 jest.mock('react-leaflet');
 
-// Mocka API-anrop
 jest.mock('../api/scooters', () => ({ fetchScooters: () => Promise.resolve([]) }));
 jest.mock('../api/stations', () => ({ fetchStations: () => Promise.resolve([]) }));
 jest.mock('../api/city', () => ({ fetchCities: () => Promise.resolve([{ id: 1, name: 'Teststad', zone: '59.3293,18.0686' }]) }));
 
-// Mocka useMap så att den har flyTo
 import * as reactLeaflet from 'react-leaflet';
 reactLeaflet.useMap = () => ({ flyTo: () => {} });
 

@@ -1,7 +1,5 @@
-
 import "../styles/login.css";
 import React, { useState } from "react";
-
 
 
 export default function LoginPage({ onLogin }) {
@@ -19,7 +17,6 @@ export default function LoginPage({ onLogin }) {
     setRegisterSuccess("");
     try {
       if (registerMode) {
-        // Registrera ny användare
         const res = await fetch(process.env.REACT_APP_API_URL + "/v1/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

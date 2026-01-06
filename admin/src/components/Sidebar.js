@@ -24,7 +24,7 @@ export default function Sidebar() {
             <a href="/users">Users</a>
             <a href="/livemap">Live Map</a>
 
-            <button onClick={handleLogout} style={{marginTop: 24, width: "90%", alignSelf: "center"}}>
+            <button onClick={handleLogout} className="logout-btn">
                 Logga ut
             </button>
         </div>

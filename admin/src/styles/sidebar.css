@@ -1,3 +1,26 @@
+.logout-btn {
+    margin-top: 32px;
+    width: 90%;
+    align-self: center;
+    padding: 12px 0;
+    background: #e11d48;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.logout-btn:hover, .logout-btn:focus {
+    background: #be123c;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(225,29,72,0.12);
+    outline: none;
+}
 .sidebar {
     width: 200px;
     background: #1e3b22;
@@ -12,11 +35,11 @@
     align-items: center;
     gap: 10px;
     padding: 10px 10px 10px 10px;
-    height: auto; /* or auto */
+    height: auto;
 }
 
 .sidebar .logo-img {
-    width: 180px;      /* adjust as needed */
+    width: 180px;
     object-fit: contain;
     display: block;
 }

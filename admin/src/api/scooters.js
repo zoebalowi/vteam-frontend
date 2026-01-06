@@ -1,6 +1,5 @@
 import { parseCoordinates } from '../utils/geo';
 
-// Use relative paths by default so the CRA dev server proxy (set in package.json) can forward requests
 const defaultBase = "";
 const baseFromEnv = process.env.REACT_APP_API_URL || defaultBase;
 const base = baseFromEnv.replace(/\/$/, "");
@@ -30,7 +29,6 @@ export async function fetchScooters() {
 
       const data = JSON.parse(text);
 
-      // Accept a few common response shapes (array, {scooters: []}, {data: []}, {items: []})
       let items = [];
       if (Array.isArray(data)) items = data;
       else if (data && Array.isArray(data.scooters)) items = data.scooters;
@@ -41,24 +39,19 @@ export async function fetchScooters() {
         continue;
       }
 
-      // Normalize items: keep original coordinates string and parsed coords
       return items.map((s) => {
-        // Accept several ways coordinates may come back from DB/API
         let rawCoords = s.coordinates ?? s.coords ?? s.location ?? "";
 
-        // If coordinates stored as array [lat, lon]
         if (!rawCoords && Array.isArray(s.coordinates) && s.coordinates.length >= 2) {
           rawCoords = `${s.coordinates[0]},${s.coordinates[1]}`;
         }
 
-        // If coordinates provided as separate fields (lat/lng, latitude/longitude, x/y etc.)
         if (!rawCoords) {
           const lat = s.lat ?? s.latitude ?? s.latitude_deg ?? s.y ?? null;
           const lng = s.lng ?? s.longitude ?? s.lon ?? s.longitude_deg ?? s.x ?? null;
           if (lat != null && lng != null) rawCoords = `${lat},${lng}`;
         }
 
-        // Clean up possible surrounding quotes/parentheses and whitespace
         if (typeof rawCoords === 'string') {
           rawCoords = rawCoords.trim().replace(/^\(|\)$/g, '').replace(/^["']|["']$/g, '').trim();
         }
@@ -89,7 +82,6 @@ export async function fetchScooters() {
   throw new Error(`Could not fetch scooters. Tried: ${msg}`);
 }
 
-// Fetch a single scooter by id (tries v1 endpoints first)
 export async function fetchScooter(id) {
   const candidates = [`${base}/v1/bike/${id}`, `${base}/scooters/${id}`];
   const errors = [];
@@ -137,7 +129,6 @@ export async function fetchScooter(id) {
   throw new Error(`Could not fetch scooter ${id}. Tried: ${msg}`);
 }
 
-// Fetch available scooters (tries v1 endpoint first)
 export async function fetchAvailableScooters() {
   const candidates = [`${base}/v1/available/bike`, `${base}/scooters/available`];
   const errors = [];

@@ -1,6 +1,5 @@
 import { parseCoordinates } from '../utils/geo';
 
-// Use relative paths by default so the CRA dev server proxy (set in package.json) can forward requests
 const defaultBase = "";
 const baseFromEnv = process.env.REACT_APP_API_URL || defaultBase;
 const base = baseFromEnv.replace(/\/$/, "");
@@ -47,7 +46,6 @@ export async function fetchStations() {
           city_id: Number(n.city_id ?? n.cityId ?? null),
           name: n.name || n.namn || `Station ${n.id}`,
           capacity: Number(n.capacity ?? n.slots ?? 0),
-          // Keep the original coordinates string (for display) and a parsed coords object (for mapping)
           coordinates: rawCoords,
           coords: parseCoordinates(rawCoords),
           ...n,
