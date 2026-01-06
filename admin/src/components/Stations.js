@@ -3,6 +3,7 @@ import "../styles/dashboard.css";
 import "../styles/page.css";
 import "../styles/widgets.css";
 import "../styles/tables.css";
+import "../styles/stations.css";
 import { fetchStations } from "../api/stations";
 
 export default function StationsPage() {
@@ -48,15 +49,6 @@ export default function StationsPage() {
   const [sortKey, setSortKey] = useState("name");
   const [sortDir, setSortDir] = useState("asc");
 
-  function toggleSort(key) {
-    if (sortKey === key) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc");
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
-  }
-
   /* -------- FILTER & SORT -------- */
   const filteredStations = stations
     .filter((s) => {
@@ -68,11 +60,17 @@ export default function StationsPage() {
       );
     })
     .sort((a, b) => {
-      const A = (a[sortKey] ?? "").toString().toLowerCase();
-      const B = (b[sortKey] ?? "").toString().toLowerCase();
-      if (A < B) return sortDir === "asc" ? -1 : 1;
-      if (A > B) return sortDir === "asc" ? 1 : -1;
-      return 0;
+      if (sortKey === "capacity") {
+        const A = Number(a.capacity) || 0;
+        const B = Number(b.capacity) || 0;
+        return sortDir === "asc" ? A - B : B - A;
+      } else {
+        const A = (a[sortKey] ?? "").toString().toLowerCase();
+        const B = (b[sortKey] ?? "").toString().toLowerCase();
+        if (A < B) return sortDir === "asc" ? -1 : 1;
+        if (A > B) return sortDir === "asc" ? 1 : -1;
+        return 0;
+      }
     });
 
   /* -------- STATS -------- */
@@ -132,34 +130,32 @@ export default function StationsPage() {
           <div className="card">
 
             {/* SEARCH + SORT */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 12,
-              }}
-            >
+            <div className="stations-toolbar">
               <input
                 type="search"
+                className="stations-search"
                 placeholder="Search by station name"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                style={{
-                  padding: "8px 10px",
-                  borderRadius: 6,
-                  border: "1px solid #ddd",
-                  minWidth: 220,
-                }}
               />
-
-              <button className="btn-outline" onClick={() => toggleSort("name")}>
-                Sort: {sortKey} {sortDir === "asc" ? "↑" : "↓"}
-              </button>
+              <select
+                className="stations-sort"
+                value={sortKey + ":" + sortDir}
+                onChange={e => {
+                  const [key, dir] = e.target.value.split(":");
+                  setSortKey(key);
+                  setSortDir(dir);
+                }}
+              >
+                <option value="name:asc">Name ↑</option>
+                <option value="name:desc">Name ↓</option>
+                <option value="capacity:asc">Capacity ↑</option>
+                <option value="capacity:desc">Capacity ↓</option>
+              </select>
             </div>
 
             {/* TABLE */}
-            <table className="table" style={{ width: "100%" }}>
+            <table className="table stations-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -192,13 +188,7 @@ export default function StationsPage() {
 
         {/* RIGHT SIDEBAR */}
         <aside>
-          <div className="section">
-            <div className="section-title">Quick actions</div>
-            <div className="quick-actions">
-              <button className="btn-primary">Add station</button>
-              <button className="btn-outline">Export</button>
-            </div>
-          </div>
+
         </aside>
       </div>
     </div>

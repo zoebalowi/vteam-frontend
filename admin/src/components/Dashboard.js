@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/dashboard.css";
 import "../styles/page.css";
 import "../styles/widgets.css";
@@ -11,6 +12,10 @@ import Map from "./Map";
 export default function DashboardPage() {
   const [scooters, setScooters] = useState([]);
   const [stations, setStations] = useState([]);
+  // Sortera stationer efter capacity (fallande) och ta topp 5
+  const topStations = [...stations]
+    .sort((a, b) => (b.capacity || 0) - (a.capacity || 0))
+    .slice(0, 5);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -140,7 +145,9 @@ export default function DashboardPage() {
       <div className="section-grid">
         {/* LEFT SIDE */}
         <div>
-          <div className="section-title">Map</div>
+          <div className="section-title">
+            <Link to="/livemap" style={{ textDecoration: "none", color: "inherit" }}>Map</Link>
+          </div>
           <div className="card map-card">
             <div className="map-placeholder">
               <Map
@@ -175,7 +182,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="section" style={{ marginTop: 20 }}>
-            <div className="section-title">Active scooters</div>
+            <div className="section-title">
+              <Link to="/scooters" style={{ textDecoration: "none", color: "inherit" }}>Active scooters</Link>
+            </div>
             <div className="card">
               <table className="table">
                 <thead>
@@ -187,7 +196,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {scooters.map((s) => (
+                  {scooters.slice(0, 5).map((s) => (
                     <tr key={s.id}>
                       <td>{s.id}</td>
                       <td>{s.battery}%</td>
@@ -210,21 +219,30 @@ export default function DashboardPage() {
         {/* RIGHT SIDEBAR */}
         <aside>
           <div className="section">
-            <div className="section-title">Quick actions</div>
-
-            <div className="quick-actions">
-              <button className="btn-primary">Add scooter</button>
-              <button className="btn-outline">Export</button>
+            <div className="section-title">
+              <Link to="/stations" style={{ textDecoration: "none", color: "inherit" }}>Stations</Link>
             </div>
-          </div>
-
-          <div className="section">
-            <div className="section-title">Recent issues</div>
-
-            <ul className="issues-list">
-              <li>S-1003 — Needs service</li>
-              <li>S-1002 — Charging</li>
-            </ul>
+            <div className="card">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Namn</th>
+                    <th>Kapacitet</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topStations.length === 0 && (
+                    <tr><td colSpan="2">Inga stationer tillgängliga</td></tr>
+                  )}
+                  {topStations.map((station) => (
+                    <tr key={station.id}>
+                      <td>{station.name}</td>
+                      <td>{station.capacity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </aside>
       </div>

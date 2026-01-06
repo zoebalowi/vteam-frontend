@@ -3,6 +3,7 @@ import "../styles/dashboard.css";
 import "../styles/page.css";
 import "../styles/widgets.css";
 import "../styles/tables.css";
+import "../styles/stations.css";
 import { fetchUsers } from "../api/users";
 
 export default function UsersPage() {
@@ -69,11 +70,6 @@ export default function UsersPage() {
   const avgRides = 0;
   const openTickets = 0;
 
-  function toggleSort(key) {
-    if (sortKey === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    else { setSortKey(key); setSortDir('asc'); }
-  }
-
   const filteredUsers = users
     .filter((u) => {
       if (!query) return true;
@@ -126,27 +122,31 @@ export default function UsersPage() {
         <div>
           <div className="section-title">All users</div>
           <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div className="stations-toolbar">
               <input
                 type="search"
+                className="stations-search"
                 placeholder="Search by name or email"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd', minWidth: 220 }}
               />
-
-              <div>
-                <button
-                  className="btn-outline"
-                  onClick={() => toggleSort('name')}
-                  style={{ marginRight: 8 }}
-                >
-                  Sort: {sortKey} {sortDir === 'asc' ? '↑' : '↓'}
-                </button>
-              </div>
+              <select
+                className="stations-sort"
+                value={sortKey + ":" + sortDir}
+                onChange={e => {
+                  const [key, dir] = e.target.value.split(":");
+                  setSortKey(key);
+                  setSortDir(dir);
+                }}
+              >
+                <option value="name:asc">Name ↑</option>
+                <option value="name:desc">Name ↓</option>
+                <option value="email:asc">Email ↑</option>
+                <option value="email:desc">Email ↓</option>
+              </select>
             </div>
 
-            <table className="table" style={{ width: '100%' }}>
+            <table className="table stations-table">
               <thead>
                 <tr>
                   <th>Name</th>

@@ -1,0 +1,26 @@
+.stations-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.stations-search {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  min-width: 220px;
+  font-size: 15px;
+}
+
+.stations-sort {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+  margin-left: 10px;
+}
+
+.stations-table {
+  width: 100%;
+}

@@ -7,11 +7,34 @@ import "../styles/dashboard.css";
 import "../styles/page.css";
 import "../styles/widgets.css";
 
+// Gemensam marker-funktion (kan flyttas till utils om du vill återanvända)
+function createMarkers(stations, scooters) {
+	return [
+		...stations.filter(s => s.coords).map(s => ({
+			position: [s.coords.lat, s.coords.lng],
+			popup: s.name,
+			type: 'station'
+		})),
+		...scooters.filter(s => s.coords).map(s => ({
+			position: [s.coords.lat, s.coords.lng],
+			popup: `Batteri: ${s.battery ?? ''}%`,
+			type: 'scooter',
+			available: s.available,
+			rented: s.rented
+		}))
+	];
+}
+
 export default function LiveMap() {
 	const [cities, setCities] = useState([]);
 	const [selectedCity, setSelectedCity] = useState("");
 	const [mapCenter, setMapCenter] = useState([59.3293, 18.0686]);
 	const [mapZoom, setMapZoom] = useState(12);
+	const [scooters, setScooters] = useState([]);
+	const [stations, setStations] = useState([]);
+	const [loading, setLoading] = useState(true);
+
+	// Hämta städer
 	useEffect(() => {
 		fetchCities().then((data) => {
 			setCities(data);
@@ -20,105 +43,70 @@ export default function LiveMap() {
 			}
 		});
 	}, []);
-	const [markers, setMarkers] = useState([]);
+
+	// Hämta scooters och stations
 	useEffect(() => {
-		if (!selectedCity || cities.length === 0) return;
+		let mounted = true;
+		Promise.all([fetchScooters(), fetchStations()])
+			.then(([scootersData, stationsData]) => {
+				if (!mounted) return;
+				setScooters(Array.isArray(scootersData) ? scootersData : []);
+				setStations(Array.isArray(stationsData) ? stationsData : []);
+			})
+			.finally(() => {
+				if (mounted) setLoading(false);
+			});
+		return () => (mounted = false);
+	}, []);
+
+	// Uppdatera kartans centrum när stad byts
+	useEffect(() => {
 		const cityObj = cities.find(c => c.name === selectedCity);
-		let cityLat = 55.6050, cityLng = 13.0038;
 		if (cityObj && typeof cityObj.zone === 'string') {
 			const [lat, lng] = cityObj.zone.split(',').map(Number);
-			cityLat = isNaN(lat) ? 55.6050 : lat;
-			cityLng = isNaN(lng) ? 13.0038 : lng;
-			setMapCenter([cityLat, cityLng]);
-			setMapZoom(12);
-		}
-		let mounted = true;
-		async function fetchData() {
-			const [scooters, stations] = await Promise.all([
-				fetchScooters(),
-				fetchStations()
-			]);
-			const cityStations = stations.filter(s => {
-				return (s.name || '').toLowerCase().includes(selectedCity.toLowerCase());
-			});
-			const cityScooters = scooters.filter(s => {
-				return typeof s.city_name === 'string' && s.city_name.toLowerCase().includes(selectedCity.toLowerCase());
-			});
-			const stationMarkers = cityStations.filter(s => s.coords || s.coordinates).map(s => ({
-				position: s.coords ? [s.coords.lat, s.coords.lng] : (Array.isArray(s.coordinates) ? s.coordinates : [cityLat, cityLng]),
-				popup: s.name,
-				type: 'station'
-			}));
-			const scooterMarkers = cityScooters.filter(s => s.coords || s.coordinates).map(s => ({
-				position: s.coords ? [s.coords.lat, s.coords.lng] : (Array.isArray(s.coordinates) ? s.coordinates : [cityLat, cityLng]),
-				popup: `Battery: ${s.battery ?? ''}%`,
-				type: 'scooter',
-				available: s.available
-			}));
-			if (mounted) setMarkers([...stationMarkers, ...scooterMarkers]);
-		}
-		fetchData();
-		return () => { mounted = false; };
-	}, [selectedCity, cities]);
-	useEffect(() => {
-		let socket;
-		let interval;
-		interval = setInterval(() => {
-			const cityObj = cities.find(c => c.name === selectedCity);
-			let cityLat = 55.6050, cityLng = 13.0038;
-			if (cityObj && typeof cityObj.zone === 'string') {
-				const [lat, lng] = cityObj.zone.split(',').map(Number);
-				cityLat = isNaN(lat) ? 55.6050 : lat;
-				cityLng = isNaN(lng) ? 13.0038 : lng;
-				setMapCenter([cityLat, cityLng]);
+			if (!isNaN(lat) && !isNaN(lng)) {
+				setMapCenter([lat, lng]);
 				setMapZoom(12);
 			}
-			fetchScooters().then(scooters => {
-				fetchStations().then(stations => {
-					const cityStations = stations.filter(s => {
-						return (s.name || '').toLowerCase().includes(selectedCity.toLowerCase());
-					});
-					const cityScooters = scooters.filter(s => {
-						return typeof s.city_name === 'string' && s.city_name.toLowerCase().includes(selectedCity.toLowerCase());
-					});
-					const stationMarkers = cityStations.filter(s => s.coords || s.coordinates).map(s => ({
-						position: s.coords ? [s.coords.lat, s.coords.lng] : (Array.isArray(s.coordinates) ? s.coordinates : [cityLat, cityLng]),
-						popup: s.name,
-						type: 'station'
-					}));
-					const scooterMarkers = cityScooters.filter(s => s.coords || s.coordinates).map(s => ({
-						position: s.coords ? [s.coords.lat, s.coords.lng] : (Array.isArray(s.coordinates) ? s.coordinates : [cityLat, cityLng]),
-						popup: `Battery: ${s.battery ?? ''}%`,
-						type: 'scooter',
-						available: s.available
-					}));
-					setMarkers([...stationMarkers, ...scooterMarkers]);
-				});
-			});
-		}, 5000);
-		return () => {
-			if (socket) socket.close();
-			clearInterval(interval);
-		};
+		}
 	}, [selectedCity, cities]);
+
+	if (loading) {
+		return (
+			<div className="loader-container">
+				<div className="spinner"></div>
+				<p className="loader-text">Laddar karta...</p>
+			</div>
+		);
+	}
+
+	// Visa ALLA stationer och scooters oavsett vald stad
+	const markers = createMarkers(stations, scooters);
+
+	// Använd unikt key för varje marker
+	const markersWithKey = markers.map((m, i) => ({
+		...m,
+		key: m.type + '-' + (m.id ?? i) + '-' + m.position.join(',')
+	}));
+
+
 	return (
 		<div className="page-container">
 			<h1 className="page-title">Live Map</h1>
 			<div style={{ marginBottom: 16 }}>
-				<label htmlFor="city-select" style={{ marginRight: 8 }}>Välj stad:</label>
+				<label htmlFor="city-select">Välj stad: </label>
 				<select
 					id="city-select"
 					value={selectedCity}
 					onChange={e => setSelectedCity(e.target.value)}
-					style={{ padding: "6px 12px", fontSize: "1rem" }}
 				>
 					{cities.map(city => (
-						<option key={city.id ?? city.name} value={city.name}>{city.name}</option>
+						<option key={city.id} value={city.name}>{city.name}</option>
 					))}
 				</select>
 			</div>
-			<div style={{ width: "100%", height: "600px", marginBottom: 24 }}>
-				<Map center={mapCenter} zoom={mapZoom} markers={markers} style={{ height: "100%", width: "100%" }} />
+			<div className="card map-card">
+				<Map center={mapCenter} zoom={mapZoom} markers={markersWithKey} />
 			</div>
 		</div>
 	);

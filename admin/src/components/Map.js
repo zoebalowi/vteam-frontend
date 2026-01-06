@@ -5,7 +5,7 @@ import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-// Flytta kartan när center/zoom ändras
+
 function MapCenterUpdater({ center, zoom }) {
   const map = useMap();
   const prevCenter = React.useRef(center);
@@ -53,14 +53,20 @@ function createSvgIcon({ color = '#2b6cb0', symbol = '' } = {}) {
   return L.divIcon({ html: svg, className: '', iconSize: [28, 36], iconAnchor: [14, 36] });
 }
 
+
 const stationIcon = createSvgIcon({ color: '#2b6cb0' }); // blue
-const scooterIcon = createSvgIcon({ color: '#f59e0b' }); // amber
 const scooterAvailableIcon = createSvgIcon({ color: '#10b981' }); // green
+const scooterRentedIcon = createSvgIcon({ color: '#f87171' }); // red
+const scooterOtherIcon = createSvgIcon({ color: '#f59e0b' }); // amber
 
 function getIconForMarker(m) {
   if (!m || !m.type) return undefined;
   if (m.type === 'station') return stationIcon;
-  if (m.type === 'scooter') return m.available ? scooterAvailableIcon : scooterIcon;
+  if (m.type === 'scooter') {
+    if (m.rented) return scooterRentedIcon;
+    if (m.available) return scooterAvailableIcon;
+    return scooterOtherIcon;
+  }
   return undefined;
 }
 
@@ -70,9 +76,10 @@ export default function Map({ center=[55.6050, 13.0038], zoom=13, markers=[] , s
       <MapCenterUpdater center={center} zoom={zoom} />
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       {markers.map((m, i) => {
+        console.log("Map marker", m);
         const icon = getIconForMarker(m);
         return (
-          <Marker key={i} position={m.position} icon={icon}>
+          <Marker key={m.key || i} position={m.position} icon={icon}>
             {m.popup && <Popup>{m.popup}</Popup>}
           </Marker>
         );
@@ -80,19 +87,3 @@ export default function Map({ center=[55.6050, 13.0038], zoom=13, markers=[] , s
     </MapContainer>
   );
 }
-
-/*
-Usage example (do fetching in a parent/container component such as `Dashboard`):
-
-// const stations = await fetchStations();
-// const stationMarkers = stations
-//   .filter(s => s.coords)
-//   .map(s => ({ position: [s.coords.lat, s.coords.lng], popup: s.name, type: 'station' }));
-
-// const scooters = await fetchScooters();
-// const scooterMarkers = scooters
-//   .filter(s => s.coords)
-//   .map(s => ({ position: [s.coords.lat, s.coords.lng], popup: `Battery: ${s.battery}`, type: 'scooter', available: s.available }));
-
-// Then render: <Map markers={stationMarkers.concat(scooterMarkers)} />
-*/
