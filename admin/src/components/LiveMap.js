@@ -9,18 +9,18 @@ import "../styles/widgets.css";
 
 function createMarkers(stations, scooters) {
 	return [
-		...stations.filter(s => s.coords).map(s => ({
-			position: [s.coords.lat, s.coords.lng],
+		...stations.filter(s => s.lat != null && s.lon != null).map(s => ({
+			position: [s.lat, s.lon],
 			popup: s.name,
 			type: 'station'
 		})),
-		...scooters.filter(s => s.coords).map(s => ({
-			position: [s.coords.lat, s.coords.lng],
-			popup: `Batteri: ${s.battery ?? ''}%`,
-			type: 'scooter',
-			available: s.available,
-			rented: s.rented
-		}))
+		       ...scooters.filter(s => s.lat != null && s.lon != null).map(s => ({
+			       position: [s.lat, s.lon],
+			       popup: `ID: ${s.id} | Batteri: ${s.battery ?? ''}%`,
+			       type: 'scooter',
+			       available: s.available,
+			       rented: s.rented
+		       }))
 	];
 }
 

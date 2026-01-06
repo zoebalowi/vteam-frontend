@@ -24,8 +24,8 @@ export default function DashboardPage() {
         s.id === update.id
           ? {
               ...s,
-              coords: { lat: update.lat, lng: update.lng },
-              coordinates: `${update.lat},${update.lng}`,
+              lat: update.lat,
+              lon: update.lng,
             }
           : s
       )
@@ -158,27 +158,21 @@ export default function DashboardPage() {
                 zoom={12}
                 markers={[
                   ...stations
-                    .filter(s => s.coordinates)
-                    .map(s => {
-                      const [lat, lng] = s.coordinates.split(",").map(Number);
-                      return {
-                        position: [lat, lng],
-                        popup: s.name,
-                        type: "station"
-                      };
-                    }),
+                    .filter(s => s.lat != null && s.lon != null)
+                    .map(s => ({
+                      position: [s.lat, s.lon],
+                      popup: s.name,
+                      type: "station"
+                    })),
 
                   ...scooters
-                    .filter(s => s.coordinates)
-                    .map(s => {
-                      const [lat, lng] = s.coordinates.split(",").map(Number);
-                      return {
-                        position: [lat, lng],
-                        popup: `Battery: ${s.battery}%`,
-                        type: "scooter",
-                        available: s.available
-                      };
-                    })
+                    .filter(s => s.lat != null && s.lon != null)
+                    .map(s => ({
+                      position: [s.lat, s.lon],
+                      popup: `Battery: ${s.battery}%`,
+                      type: "scooter",
+                      available: s.available
+                    }))
                 ]}
               />
             </div>
@@ -210,7 +204,7 @@ export default function DashboardPage() {
                           ? "Available"
                           : "Unavailable"}
                       </td>
-                      <td>{s.coordinates || "—"}</td>
+                      <td>{s.lat != null && s.lon != null ? `${s.lat}, ${s.lon}` : "—"}</td>
                     </tr>
                   ))}
                 </tbody>

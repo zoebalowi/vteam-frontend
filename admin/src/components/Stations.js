@@ -176,7 +176,7 @@ export default function StationsPage() {
                       <td style={{ fontWeight: 600 }}>{st.name}</td>
                       <td>{st.capacity ?? 0}</td>
                       <td style={{ fontSize: 13, color: "#6b7280" }}>
-                        {st.coordinates || "—"}
+                        {st.lat != null && st.lon != null ? `${st.lat}, ${st.lon}` : "—"}
                       </td>
                     </tr>
                   ))

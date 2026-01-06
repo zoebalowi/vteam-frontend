@@ -40,26 +40,11 @@ export async function fetchScooters() {
       }
 
       return items.map((s) => {
-        let rawCoords = s.coordinates ?? s.coords ?? s.location ?? "";
-
-        if (!rawCoords && Array.isArray(s.coordinates) && s.coordinates.length >= 2) {
-          rawCoords = `${s.coordinates[0]},${s.coordinates[1]}`;
-        }
-
-        if (!rawCoords) {
-          const lat = s.lat ?? s.latitude ?? s.latitude_deg ?? s.y ?? null;
-          const lng = s.lng ?? s.longitude ?? s.lon ?? s.longitude_deg ?? s.x ?? null;
-          if (lat != null && lng != null) rawCoords = `${lat},${lng}`;
-        }
-
-        if (typeof rawCoords === 'string') {
-          rawCoords = rawCoords.trim().replace(/^\(|\)$/g, '').replace(/^["']|["']$/g, '').trim();
-        }
-
         const idVal = s.id ?? s.scooter_id ?? s.scooterId ?? null;
         const available = typeof s.available === 'number' ? Boolean(Number(s.available)) : Boolean(s.available);
         const rented = typeof s.rented === 'number' ? Boolean(Number(s.rented)) : Boolean(s.rented);
-
+        const lat = s.lat ?? s.latitude ?? s.latitude_deg ?? s.y ?? null;
+        const lon = s.lon ?? s.lng ?? s.longitude ?? s.longitude_deg ?? s.x ?? null;
         return {
           id: idVal != null ? Number(idVal) : null,
           city_id: Number(s.city_id ?? s.cityId ?? null),
@@ -67,8 +52,8 @@ export async function fetchScooters() {
           rented,
           battery: Number(s.battery ?? s.charge ?? s.battery_level ?? 0),
           model: s.model ?? s.name ?? null,
-          coordinates: rawCoords || null,
-          coords: parseCoordinates(rawCoords),
+          lat: lat != null ? Number(lat) : null,
+          lon: lon != null ? Number(lon) : null,
           ...s,
         };
       });
@@ -103,11 +88,11 @@ export async function fetchScooter(id) {
         continue;
       }
 
-      const rawCoords = s.coordinates ?? s.coords ?? s.location ?? "";
       const idVal = s.id ?? s.scooter_id ?? s.scooterId ?? null;
       const available = typeof s.available === 'number' ? Boolean(Number(s.available)) : Boolean(s.available);
       const rented = typeof s.rented === 'number' ? Boolean(Number(s.rented)) : Boolean(s.rented);
-
+      const lat = s.lat ?? s.latitude ?? s.latitude_deg ?? s.y ?? null;
+      const lon = s.lon ?? s.lng ?? s.longitude ?? s.longitude_deg ?? s.x ?? null;
       return {
         id: idVal != null ? Number(idVal) : null,
         city_id: Number(s.city_id ?? s.cityId ?? null),
@@ -115,8 +100,8 @@ export async function fetchScooter(id) {
         rented,
         battery: Number(s.battery ?? s.charge ?? s.battery_level ?? 0),
         model: s.model ?? s.name ?? null,
-        coordinates: rawCoords,
-        coords: parseCoordinates(rawCoords),
+        lat: lat != null ? Number(lat) : null,
+        lon: lon != null ? Number(lon) : null,
         ...s,
       };
     } catch (err) {
@@ -150,11 +135,11 @@ export async function fetchAvailableScooters() {
       }
 
       return items.map((s) => {
-        const rawCoords = s.coordinates ?? s.coords ?? s.location ?? "";
         const idVal = s.id ?? s.scooter_id ?? s.scooterId ?? null;
         const available = typeof s.available === 'number' ? Boolean(Number(s.available)) : Boolean(s.available);
         const rented = typeof s.rented === 'number' ? Boolean(Number(s.rented)) : Boolean(s.rented);
-
+        const lat = s.lat ?? s.latitude ?? s.latitude_deg ?? s.y ?? null;
+        const lon = s.lon ?? s.lng ?? s.longitude ?? s.longitude_deg ?? s.x ?? null;
         return {
           id: idVal != null ? Number(idVal) : null,
           city_id: Number(s.city_id ?? s.cityId ?? null),
@@ -162,8 +147,8 @@ export async function fetchAvailableScooters() {
           rented,
           battery: Number(s.battery ?? s.charge ?? s.battery_level ?? 0),
           model: s.model ?? s.name ?? null,
-          coordinates: rawCoords,
-          coords: parseCoordinates(rawCoords),
+          lat: lat != null ? Number(lat) : null,
+          lon: lon != null ? Number(lon) : null,
           ...s,
         };
       });
@@ -198,13 +183,19 @@ export async function fetchStations() {
         continue;
       }
 
-      return arr.map(s => ({
-        id: Number(s.id),
-        city_id: Number(s.city_id ?? s.cityId ?? null),
-        name: s.name || s.namn || '',
-        capacity: Number(s.capacity || s.slots || 0),
-        coords: parseCoordinates(s.coordinates)
-      }));
+      return arr.map(s => {
+        const lat = s.lat ?? s.latitude ?? null;
+        const lon = s.lon ?? s.longitude ?? null;
+        return {
+          id: Number(s.id),
+          city_id: Number(s.city_id ?? s.cityId ?? null),
+          name: s.name || s.namn || '',
+          capacity: Number(s.capacity || s.slots || 0),
+          lat: lat != null ? Number(lat) : null,
+          lon: lon != null ? Number(lon) : null,
+          ...s,
+        };
+      });
     } catch (err) {
       errors.push({ url, message: err.message });
       continue;

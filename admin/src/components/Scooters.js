@@ -206,7 +206,7 @@ export default function ScootersPage() {
                     <td>{s.id}</td>
                     <td>{s.battery}%</td>
                     <td>{getStatusString(s)}</td>
-                    <td>{s.coordinates || "—"}</td>
+                    <td>{s.lat != null && s.lon != null ? `${s.lat}, ${s.lon}` : "—"}</td>
                   </tr>
                 ))}
               </tbody>

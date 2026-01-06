@@ -9,7 +9,8 @@ function normalizeStation(s) {
     id: s.id,
     name: s.namn ?? s.name ?? `Station ${s.id}`,
     capacity: Number(s.capacity ?? s.slots ?? 0),
-    coordinates: s.coordinates ?? s.coords ?? s.location ?? "",
+    lat: s.lat ?? s.latitude ?? null,
+    lon: s.lon ?? s.longitude ?? null,
     city_id: s.city_id ?? s.cityId ?? null,
     ...s,
   };
@@ -40,14 +41,13 @@ export async function fetchStations() {
 
       return arr.map((s) => {
         const n = normalizeStation(s);
-        const rawCoords = n.coordinates ?? "";
         return {
           id: Number(n.id),
           city_id: Number(n.city_id ?? n.cityId ?? null),
           name: n.name || n.namn || `Station ${n.id}`,
           capacity: Number(n.capacity ?? n.slots ?? 0),
-          coordinates: rawCoords,
-          coords: parseCoordinates(rawCoords),
+          lat: n.lat != null ? Number(n.lat) : null,
+          lon: n.lon != null ? Number(n.lon) : null,
           ...n,
         };
       });
