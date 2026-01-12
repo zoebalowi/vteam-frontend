@@ -21,7 +21,7 @@ export default function Sidebar() {
             </div>
             <Link to="/">Home</Link>
             <br />
-            <Link to="/maps">Go to Maps</Link>
+            <Link to="/maps">Go to Bikes</Link>
             <br />
             <Link to="/profile">Go to Profile</Link>
             <br />
