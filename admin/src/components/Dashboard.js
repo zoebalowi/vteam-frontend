@@ -6,7 +6,6 @@ import "../styles/widgets.css";
 import "../styles/tables.css";
 import { fetchScooters } from "../api/scooters";
 import { fetchStations } from "../api/stations";
-import { useScooterSocket } from "../socket/socket.js";
 import Map from "./Map";
 
 export default function DashboardPage() {
@@ -18,19 +17,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  useScooterSocket((update) => {
-    setScooters((prev) =>
-      prev.map((s) =>
-        s.id === update.id
-          ? {
-              ...s,
-              lat: update.lat,
-              lon: update.lng,
-            }
-          : s
-      )
-    );
-  });
+
   
   useEffect(() => {
     let mounted = true;

@@ -115,80 +115,60 @@ export default function UsersPage() {
       </div>
 
       {/* ----- MAIN GRID ----- */}
-      <div className="section-grid">
-        {/* LEFT SIDE */}
-        <div>
-          <div className="section-title">All users</div>
-          <div className="card">
-            <div className="stations-toolbar">
-              <input
-                type="search"
-                className="stations-search"
-                placeholder="Search by name or email"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <select
-                className="stations-sort"
-                value={sortKey + ":" + sortDir}
-                onChange={e => {
-                  const [key, dir] = e.target.value.split(":");
-                  setSortKey(key);
-                  setSortDir(dir);
-                }}
-              >
-                <option value="name:asc">Name ↑</option>
-                <option value="name:desc">Name ↓</option>
-                <option value="email:asc">Email ↑</option>
-                <option value="email:desc">Email ↓</option>
-              </select>
-            </div>
+      <div style={{ width: '100%' }}>
+        <div className="section-title">All users</div>
+        <div className="card">
+          <div className="stations-toolbar">
+            <input
+              type="search"
+              className="stations-search"
+              placeholder="Search by name or email"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              className="stations-sort"
+              value={sortKey + ":" + sortDir}
+              onChange={e => {
+                const [key, dir] = e.target.value.split(":");
+                setSortKey(key);
+                setSortDir(dir);
+              }}
+            >
+              <option value="name:asc">Name ↑</option>
+              <option value="name:desc">Name ↓</option>
+              <option value="email:asc">Email ↑</option>
+              <option value="email:desc">Email ↓</option>
+            </select>
+          </div>
 
-            <table className="table stations-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th style={{ width: 140 }}>Status</th>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Balance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length === 0 ? (
+                <tr key="no-users">
+                  <td colSpan={4}>No users found</td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} style={{ textAlign: 'center', padding: 20 }}>No users found</td>
+              ) : (
+                filteredUsers.map((u, i) => (
+                  <tr key={u.id ?? `user-row-${i}`}>
+                    <td>{u.name}</td>
+                    <td>{u.email}</td>
+                    <td>{typeof u.balance === 'number' ? u.balance.toFixed(2) + ' kr' : '-'}</td>
+                    <td>{u.hashed_password ? 'Active' : 'Invited'}</td>
                   </tr>
-                ) : (
-                  filteredUsers.map((u) => (
-                    <React.Fragment key={u.id}>
-                      <tr>
-                        <td>
-                          <div style={{ fontWeight: 600 }}>{u.name}</div>
-                        </td>
-                        <td style={{ fontSize: 13, color: '#6b7280' }}>{u.email}</td>
-                        <td>
-                          <div>{u.hashed_password ? 'Active' : 'Invited'}</div>
-                        </td> 
-                      </tr>
-
-
-                    </React.Fragment>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-
-        {/* RIGHT SIDEBAR */}
-        <aside>
-          <div className="section">
-            <div className="section-title">Quick actions</div>
-            <div className="quick-actions">
-              <button className="btn-primary">Add user</button>
-              <button className="btn-outline">Export</button>
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   );
