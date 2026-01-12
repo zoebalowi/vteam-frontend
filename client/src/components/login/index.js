@@ -24,7 +24,8 @@ export default function Login() {
         setPassword("");
       } else {
         await loginUser(email, password);
-        navigate("/");
+        // Force reload to update App.js token check
+        window.location.href = "/";
       }
     } catch (err) {
       setError(err.message || (isRegister ? "Registrering misslyckades" : "Login misslyckades"));

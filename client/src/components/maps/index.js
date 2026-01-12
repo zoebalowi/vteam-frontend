@@ -3,6 +3,8 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "../../style/maps.css";
 import { fetchScooters } from "../../api/scooters";
+import { startRental } from "../../api/rentals";
+import { getToken } from "../../authUtils";
 
 // Fix för Leaflet marker-ikon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,9 +18,22 @@ function Maps() {
   const [scooters, setScooters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // "all", "available", "lowbattery"
+  const [userId, setUserId] = useState(null);
+  const [renting, setRenting] = useState(false);
 
   useEffect(() => {
     let mounted = true;
+
+    // Get user_id from token
+    const token = getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setUserId(payload.user_id);
+      } catch (err) {
+        console.error("Failed to parse token:", err);
+      }
+    }
 
     fetchScooters()
       .then((data) => {
@@ -35,6 +50,27 @@ function Maps() {
 
     return () => (mounted = false);
   }, []);
+
+  const handleRentScooter = async (scooterId) => {
+    if (!userId) {
+      alert("Kunde inte hitta användar-ID");
+      return;
+    }
+    if (renting) return;
+
+    setRenting(true);
+    try {
+      await startRental(userId, scooterId);
+      alert("Scooter uthyrd! Gå till Home för att se din aktiva resa.");
+      // Refresh scooters
+      const data = await fetchScooters();
+      setScooters(data);
+    } catch (err) {
+      alert("Kunde inte hyra scooter: " + err.message);
+    } finally {
+      setRenting(false);
+    }
+  };
 
   // Filter scooters baserat på valt filter
   const filteredScooters = scooters.filter((s) => {
@@ -82,15 +118,25 @@ function Maps() {
             />
             {filteredScooters.map((scooter) => (
               <Marker
-                key={scooter.id}
-                position={[scooter.latitude || 59.3293, scooter.longitude || 18.0686]}
+                key={scooter.scooter_id}
+                position={[scooter.lat || 59.3293, scooter.lon || 18.0686]}
               >
                 <Popup>
                   <div className="popup-content">
-                    <strong>Scooter {scooter.id}</strong>
+                    <strong>Scooter {scooter.scooter_id}</strong>
                     <p>Batteri: {scooter.battery}%</p>
                     <p>Status: {scooter.rented ? "Uthyrd" : "Tillgänglig"}</p>
-                    <button className="btn-small">Hyr nu</button>
+                    {!scooter.rented && scooter.available ? (
+                      <button 
+                        className="btn-small" 
+                        onClick={() => handleRentScooter(scooter.scooter_id)}
+                        disabled={renting}
+                      >
+                        {renting ? "Hyr..." : "Hyr nu"}
+                      </button>
+                    ) : (
+                      <button className="btn-small" disabled>Ej tillgänglig</button>
+                    )}
                   </div>
                 </Popup>
               </Marker>
