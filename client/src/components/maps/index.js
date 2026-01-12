@@ -17,7 +17,6 @@ L.Icon.Default.mergeOptions({
 function Maps() {
   const [scooters, setScooters] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all"); // "all", "available", "lowbattery"
   const [userId, setUserId] = useState(null);
   const [renting, setRenting] = useState(false);
 
@@ -72,12 +71,8 @@ function Maps() {
     }
   };
 
-  // Filter scooters baserat på valt filter
-  const filteredScooters = scooters.filter((s) => {
-    if (filter === "available") return s.available && !s.rented;
-    if (filter === "lowbattery") return s.battery < 20;
-    return true;
-  });
+  // Visa bara tillgängliga scooters
+  const availableScooters = scooters.filter((s) => s.available && !s.rented);
 
   if (loading) {
     return <p>Loading map...</p>;
@@ -89,34 +84,14 @@ function Maps() {
   return (
     <div className="page-container home-centered">
       <div className="card home-card">
-        <h1 className="page-title home-title">Scooter Map</h1>
-        <div className="home-actions" style={{ marginBottom: 16 }}>
-          <button
-            className={filter === "all" ? "btn-filter active home-action-btn" : "btn-filter home-action-btn"}
-            onClick={() => setFilter("all")}
-          >
-            Alla scooters ({scooters.length})
-          </button>
-          <button
-            className={filter === "available" ? "btn-filter active home-action-btn" : "btn-filter home-action-btn"}
-            onClick={() => setFilter("available")}
-          >
-            Tillgängliga ({scooters.filter((s) => s.available && !s.rented).length})
-          </button>
-          <button
-            className={filter === "lowbattery" ? "btn-filter active home-action-btn" : "btn-filter home-action-btn"}
-            onClick={() => setFilter("lowbattery")}
-          >
-            Låg batteri ({scooters.filter((s) => s.battery < 20).length})
-          </button>
-        </div>
+        <h1 className="page-title home-title">🚲 Tillgängliga Scooters</h1>
         <div className="map-wrapper" style={{ marginBottom: 16 }}>
           <MapContainer center={mapCenter} zoom={13} className="map">
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; OpenStreetMap contributors'
             />
-            {filteredScooters.map((scooter) => (
+            {availableScooters.map((scooter) => (
               <Marker
                 key={scooter.scooter_id}
                 position={[scooter.lat || 59.3293, scooter.lon || 18.0686]}
@@ -125,18 +100,14 @@ function Maps() {
                   <div className="popup-content">
                     <strong>Scooter {scooter.scooter_id}</strong>
                     <p>Batteri: {scooter.battery}%</p>
-                    <p>Status: {scooter.rented ? "Uthyrd" : "Tillgänglig"}</p>
-                    {!scooter.rented && scooter.available ? (
-                      <button 
-                        className="btn-small" 
-                        onClick={() => handleRentScooter(scooter.scooter_id)}
-                        disabled={renting}
-                      >
-                        {renting ? "Hyr..." : "Hyr nu"}
-                      </button>
-                    ) : (
-                      <button className="btn-small" disabled>Ej tillgänglig</button>
-                    )}
+                    <p>Status: Tillgänglig</p>
+                    <button 
+                      className="btn-small" 
+                      onClick={() => handleRentScooter(scooter.scooter_id)}
+                      disabled={renting}
+                    >
+                      {renting ? "Hyr..." : "Hyr nu"}
+                    </button>
                   </div>
                 </Popup>
               </Marker>
@@ -144,7 +115,7 @@ function Maps() {
           </MapContainer>
         </div>
         <div className="home-muted" style={{ marginTop: 8 }}>
-          Visar {filteredScooters.length} scooters på kartan
+          Visar {availableScooters.length} tillgängliga scooters på kartan
         </div>
       </div>
     </div>
