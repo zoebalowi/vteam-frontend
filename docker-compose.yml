@@ -1,0 +1,35 @@
+services:
+  client-admin:
+    image: "feedux/vteam-admin:1.0"
+    command: ["npm", "run", "start"]
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:3001
+    depends_on:
+      - api
+
+  api:
+    image: "vinepine/vteam-backend-api:latest"
+    command: ["node", "index.js"]
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./../vteam-backend/db/dbdata:/var/lib/mysql
+    environment:
+      DOCKER_HOSTING: "true"
+
+  mariadb:
+    image: mariadb:10.6
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: vteam
+      MYSQL_USER: vteam01
+      MYSQL_PASSWORD: vteam
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./../vteam-backend/db/dbdata:/var/lib/mysql
+      - ./../vteam-backend/db:/docker-entrypoint-initdb.d
+      - ./../vteam-backend/csv:/csv
+    restart: always
