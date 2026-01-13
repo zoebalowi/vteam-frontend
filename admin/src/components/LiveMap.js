@@ -106,7 +106,7 @@ export default function LiveMap() {
 						setScooters(Array.isArray(scootersData) ? scootersData : []);
 						setStations(Array.isArray(stationsData) ? stationsData : []);
 					});
-			}, 3000);
+			}, 2900);
 		} else {
 			if (pollingRef.current) {
 				clearInterval(pollingRef.current);
