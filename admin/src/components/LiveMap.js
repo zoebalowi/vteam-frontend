@@ -16,13 +16,15 @@ function createMarkers(stations, scooters) {
 			popup: s.name,
 			type: 'station'
 		})),
-		       ...scooters.filter(s => s.lat != null && s.lon != null).map(s => ({
-			       position: [s.lat, s.lon],
-			       popup: `ID: ${s.id} | Batteri: ${s.battery ?? ''}%`,
-			       type: 'scooter',
-			       available: s.available,
-			       rented: s.rented
-		       }))
+			       ...scooters.filter(s => s.lat != null && s.lon != null).map(s => ({
+				       position: [s.lat, s.lon],
+				       popup: `ID: ${s.scooter_id ?? s.id} | Batteri: ${s.battery ?? ''}%`,
+				       type: 'scooter',
+				       available: s.available,
+				       rented: s.rented,
+				       battery: s.battery,
+				       id: s.scooter_id ?? s.id
+			       }))
 	];
 }
 
@@ -78,9 +80,9 @@ export default function LiveMap() {
 	useEffect(() => {
 		fetchCities().then((data) => {
 			setCities(data);
-			if (data.length > 0) {
-				setSelectedCity(data[0].name);
-			}
+			setSelectedCity(prev =>
+			prev || (data.length > 0 ? data[0].name : "")
+			);
 		});
 	}, []);
 
@@ -123,10 +125,11 @@ export default function LiveMap() {
 
 	useEffect(() => {
 		const cityObj = cities.find(c => c.name === selectedCity);
-		if (cityObj && typeof cityObj.zone === 'string') {
-			const [lat, lng] = cityObj.zone.split(',').map(Number);
-			if (!isNaN(lat) && !isNaN(lng)) {
-				setMapCenter([lat, lng]);
+		if (cityObj) {
+			const lat = Number(cityObj.lat);
+			const lon = Number(cityObj.lon);
+			if (!isNaN(lat) && !isNaN(lon)) {
+				setMapCenter([lat, lon]);
 				setMapZoom(12);
 			}
 		}
@@ -161,7 +164,9 @@ export default function LiveMap() {
 					className="city-select-dropdown"
 				>
 					{cities.map(city => (
-						<option key={city.id} value={city.name}>{city.name}</option>
+						<option key={city.name} value={city.name}>
+							{city.name}
+						</option>
 					))}
 				</select>
 			</div>

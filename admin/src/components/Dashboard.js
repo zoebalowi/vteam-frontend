@@ -62,8 +62,6 @@ export default function DashboardPage() {
 
     return () => (mounted = false);
   }, []);
-   console.log("Stations:", stations);
-  console.log("Scooters:", scooters);
 
   // -------- LOADER UI --------
   if (loading) {
@@ -143,7 +141,7 @@ export default function DashboardPage() {
               <Map
                 center={[59.3293, 18.0686]}
                 zoom={12}
-                markers={[
+                markers={[ 
                   ...stations
                     .filter(s => s.lat != null && s.lon != null)
                     .map(s => ({
@@ -156,9 +154,12 @@ export default function DashboardPage() {
                     .filter(s => s.lat != null && s.lon != null)
                     .map(s => ({
                       position: [s.lat, s.lon],
-                      popup: `Battery: ${s.battery}%`,
+                      popup: `ID: ${s.scooter_id ?? s.id} | Batteri: ${s.battery}%`,
                       type: "scooter",
-                      available: s.available
+                      available: s.available,
+                      rented: s.rented,
+                      battery: s.battery,
+                      id: s.scooter_id ?? s.id
                     }))
                 ]}
               />
