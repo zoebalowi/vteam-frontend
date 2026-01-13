@@ -1,7 +1,7 @@
-export async function fetchScooters() {
+export async function fetchUserById(userId) {
   try {
     const token = localStorage.getItem("token");
-    const response = await fetch("/v1/bike", {
+    const response = await fetch(`/v1/users/${userId}`, {
       headers: {
         "Content-Type": "application/json",
         "x-access-token": token || ""
@@ -11,9 +11,10 @@ export async function fetchScooters() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data.scooters; 
+    // backend returns { user: [ { ... } ] }
+    return Array.isArray(data.user) ? data.user[0] : null;
   } catch (error) {
-    console.error("Failed to fetch scooters:", error);
-    return [];
+    console.error("Failed to fetch user:", error);
+    return null;
   }
 }

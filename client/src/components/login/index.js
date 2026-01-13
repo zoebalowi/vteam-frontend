@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "../../authUtils";
 import "./login.css";
 
@@ -9,7 +8,6 @@ export default function Login() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isRegister, setIsRegister] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +22,8 @@ export default function Login() {
         setPassword("");
       } else {
         await loginUser(email, password);
-        navigate("/");
+        // Force reload to update App.js token check
+        window.location.href = "/";
       }
     } catch (err) {
       setError(err.message || (isRegister ? "Registrering misslyckades" : "Login misslyckades"));
@@ -74,15 +73,13 @@ export default function Login() {
 
         <div className="divider">ELLER</div>
 
-        <button
-          type="button"
-          onClick={() => {
-            window.location.href = "/v1/oauth-run";
-          }}
+        <a
+          href="http://localhost:3001/v1/oauth-run"
           className="google-btn"
+          style={{ display: "inline-block", textAlign: "center" }}
         >
           Logga in med Google
-        </button>
+        </a>
       </div>
     </div>
   );

@@ -8,25 +8,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 
 function MapCenterUpdater({ center, zoom }) {
   const map = useMap();
-  const prevCenter = React.useRef(center);
-  const prevZoom = React.useRef(zoom);
-
   React.useEffect(() => {
     if (!map || !center) return;
-    if (
-      prevCenter.current[0] !== center[0] ||
-      prevCenter.current[1] !== center[1]
-    ) {
-      map.flyTo(prevCenter.current, 8, { animate: true, duration: 0.5 });
-      setTimeout(() => {
-        map.flyTo(center, zoom, { animate: true, duration: 0.5 });
-        prevCenter.current = center;
-        prevZoom.current = zoom;
-      }, 500);
-    } else {
-      map.flyTo(center, zoom, { animate: true, duration: 1 });
-      prevZoom.current = zoom;
-    }
+    map.flyTo(center, zoom, { animate: true, duration: 1 });
   }, [center, zoom, map]);
   return null;
 }
@@ -55,14 +39,26 @@ const scooterRentedIcon = createSvgIcon({ color: '#f87171' });
 const scooterOtherIcon = createSvgIcon({ color: '#f59e0b' });
 
 function getIconForMarker(m) {
-  if (!m || !m.type) return undefined;
+  if (!m || !m.type) return scooterOtherIcon;
   if (m.type === 'station') return stationIcon;
   if (m.type === 'scooter') {
-    if (m.rented) return scooterRentedIcon;
-    if (m.available) return scooterAvailableIcon;
-    return scooterOtherIcon;
+    const rented = m.rented === true || m.rented === 1 || m.rented === '1';
+    const available = m.available === true || m.available === 1 || m.available === '1';
+    const battery = typeof m.battery === 'number' ? m.battery : Number(m.battery);
+    let icon = scooterOtherIcon;
+    if (rented) {
+      icon = scooterRentedIcon;
+    } else if (available && !isNaN(battery)) {
+      if (battery > 50) {
+        icon = scooterAvailableIcon;
+      } else {
+        icon = scooterOtherIcon;
+      }
+    }
+    return icon;
   }
-  return undefined;
+  // Om typ är okänd, visa gul ikon
+  return scooterOtherIcon;
 }
 
 export default function Map({ center=[55.6050, 13.0038], zoom=13, markers=[] , style={ height: '400px' } }) {
@@ -71,7 +67,6 @@ export default function Map({ center=[55.6050, 13.0038], zoom=13, markers=[] , s
       <MapCenterUpdater center={center} zoom={zoom} />
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       {markers.map((m, i) => {
-        console.log("Map marker", m);
         const icon = getIconForMarker(m);
         return (
           <Marker key={m.key || i} position={m.position} icon={icon}>

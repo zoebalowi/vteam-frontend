@@ -14,8 +14,8 @@ export default function OAuthCallback() {
         if (token) {
           // Spara token i localStorage
           localStorage.setItem("token", token);
-          // Redirect till home
-          navigate("/");
+          // Hårdladda sidan så App läser token från localStorage
+          window.location.href = "/";
         } else {
           // Ingen token, redirect till login
           navigate("/login");
