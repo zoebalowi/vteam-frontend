@@ -14,7 +14,7 @@ function App() {
   const token = getToken();
 
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
         {/* Callback för OAuth */}
         <Route path="/callback" element={<OAuthCallback />} />
@@ -35,7 +35,7 @@ function App() {
         {/* Login alltid tillgänglig */}
         <Route path="/login" element={<Login />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
