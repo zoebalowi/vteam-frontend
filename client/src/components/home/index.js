@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import "../../style/home.css";
 import { fetchRentals, endRental } from "../../api/rentals";
 import { getToken } from "../../authUtils";
+import { MdOutlineElectricScooter, MdAttachMoney } from "react-icons/md";
+import { TfiAlarmClock } from "react-icons/tfi";
+
 
 function Home() {
   const navigate = useNavigate();
@@ -70,7 +73,7 @@ function Home() {
       {/* Välkomstmeddelande */}
       <div className="card home-card">
         <h1 className="page-title home-title">
-          👋 Välkommen!
+          Välkommen!
         </h1>
         <p className="home-info">
           Här kan du enkelt hyra en el-scooter, se din historik och hantera betalningar.
@@ -80,7 +83,7 @@ function Home() {
       {/* Aktiv uthyrning */}
       <div className="card home-card">
         <div className="section-title home-section-title">
-          🚲 Aktiv uthyrning
+          <MdOutlineElectricScooter /> Aktiv uthyrning
         </div>
         {activeRide ? (
           <div>
@@ -98,14 +101,14 @@ function Home() {
 
       {/* Rent bike & Betalningar */}
       <div className="card home-card home-actions">
-        <button className="btn-primary home-action-btn" onClick={() => navigate("/maps?filter=available")}>🚲 Hyr scooter</button>
-        <button className="btn-outline home-action-btn" onClick={() => navigate("/payments")}>💳 Betalningar</button>
+        <button className="btn-primary home-action-btn" onClick={() => navigate("/maps?filter=available")}><MdOutlineElectricScooter /> Hyr scooter</button>
+        <button className="btn-outline home-action-btn" onClick={() => navigate("/payments")}><MdAttachMoney /> Betalningar</button>
       </div>
 
       {/* Historik */}
       <div className="card home-card">
         <div className="section-title home-section-title">
-          📜 Historik
+          <TfiAlarmClock /> Historik
         </div>
         {loading ? (
           <p className="home-muted">Laddar...</p>
