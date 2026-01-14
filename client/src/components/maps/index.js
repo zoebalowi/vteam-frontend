@@ -5,6 +5,7 @@ import "../../style/maps.css";
 import { fetchScooters } from "../../api/scooters";
 import { startRental } from "../../api/rentals";
 import { getToken } from "../../authUtils";
+import { MdOutlineElectricScooter } from "react-icons/md";
 
 // Fix för Leaflet marker-ikon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -84,7 +85,7 @@ function Maps() {
   return (
     <div className="page-container home-centered">
       <div className="card home-card">
-        <h1 className="page-title home-title">🚲 Tillgängliga Scooters</h1>
+        <h1 className="page-title home-title"><MdOutlineElectricScooter /> Tillgängliga Scooters</h1>
         <div className="map-wrapper" style={{ marginBottom: 16 }}>
           <MapContainer center={mapCenter} zoom={13} className="map">
             <TileLayer

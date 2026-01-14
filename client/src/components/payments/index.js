@@ -3,6 +3,7 @@ import { fetchPaymentHistory, addBalance } from "../../api/payments";
 import { fetchUserById } from "../../api/users";
 import { getToken } from "../../authUtils";
 import "../../style/home.css";
+import { MdAttachMoney , MdReceiptLong } from "react-icons/md";
 
 function Payments() {
   const [payments, setPayments] = useState([]);
@@ -13,17 +14,14 @@ function Payments() {
   const [topUpStatus, setTopUpStatus] = useState("");
 
   useEffect(() => {
-    // Get user_id from token
     const token = getToken();
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         setUserId(payload.user_id);
         
-        // Fetch user details (including balance)
         fetchUserById(payload.user_id).then((u) => setUser(u)).catch(() => {});
 
-        // Fetch payment history for this user
         fetchPaymentHistory(payload.user_id)
           .then((data) => {
             setPayments(data);
@@ -48,12 +46,7 @@ function Payments() {
     const amount = Number(topUpAmount);
     
     if (!amount || amount <= 0) {
-      setTopUpStatus("⚠️ Ange ett belopp större än 0");
-      return;
-    }
-    
-    if (!userId) {
-      setTopUpStatus("⚠️ Kunde inte hitta användar-ID");
+      setTopUpStatus("Ange ett belopp större än 0");
       return;
     }
     
@@ -62,11 +55,9 @@ function Payments() {
       setTopUpStatus("✓ Saldo uppdaterat!");
       setTopUpAmount(0);
       
-      // Refresh user balance
       const updatedUser = await fetchUserById(userId);
       setUser(updatedUser);
       
-      // Refresh payment history
       const updatedPayments = await fetchPaymentHistory(userId);
       setPayments(updatedPayments);
     } catch (err) {
@@ -77,11 +68,11 @@ function Payments() {
 
   return (
     <div className="page-container home-centered">
-      <h1 className="page-title">💳 Betalningar</h1>
+      <h1 className="page-title"><MdAttachMoney /> Betalningar</h1>
       
       {/* Saldo-kort */}
       <div className="card home-card">
-        <div className="section-title home-section-title">💰 Nuvarande saldo</div>
+        <div className="section-title home-section-title"> Nuvarande saldo</div>
         <div style={{ 
           fontSize: "2.5rem", 
           fontWeight: "700", 
@@ -123,7 +114,7 @@ function Payments() {
               fontWeight: "600"
             }}
           >
-            💵 Ladda saldo
+             Ladda saldo
           </button>
         </div>
         {topUpStatus && (
@@ -142,7 +133,7 @@ function Payments() {
 
       {/* Betalningshistorik */}
       <div className="card home-card">
-        <div className="section-title home-section-title">📜 Betalningshistorik</div>
+        <div className="section-title home-section-title"><MdReceiptLong /> Betalningshistorik</div>
         {loading ? (
           <p className="home-muted" style={{ textAlign: "center", padding: "2rem" }}>⏳ Laddar...</p>
         ) : payments.length === 0 ? (
