@@ -1,7 +1,9 @@
+const API_URL = process.env.REACT_APP_API_URL || "";
+
 export async function fetchRentals() {
   try {
     const token = localStorage.getItem("token");
-    const response = await fetch("/v1/rental/me", {
+    const response = await fetch(`${API_URL}/v1/rental/me`, {
       headers: {
         "Content-Type": "application/json",
         "x-access-token": token || ""
@@ -22,7 +24,7 @@ export async function startRental(userId, scooterId) {
   try {
     const token = localStorage.getItem("token");
     const rentalId = Date.now(); // Simple ID generation
-    const response = await fetch(`/v1/rental/start/${rentalId}/${userId}/${scooterId}`, {
+    const response = await fetch(`${API_URL}/v1/rental/start/${rentalId}/${userId}/${scooterId}`, {
       headers: {
         "Content-Type": "application/json",
         "x-access-token": token || ""
@@ -41,7 +43,7 @@ export async function startRental(userId, scooterId) {
 export async function endRental(rentalId, userId, scooterId) {
   try {
     const token = localStorage.getItem("token");
-    const response = await fetch(`/v1/rental/end/${rentalId}/${userId}/${scooterId}`, {
+    const response = await fetch(`${API_URL}/v1/rental/end/${rentalId}/${userId}/${scooterId}`, {
       headers: {
         "Content-Type": "application/json",
         "x-access-token": token || ""

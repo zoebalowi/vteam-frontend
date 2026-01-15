@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { logout, getToken } from "../../authUtils";
 import "../../style/profile.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "";
+
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +19,7 @@ export default function Profile() {
       const payload = JSON.parse(atob(token.split(".")[1]));
       const userId = payload.user_id;
 
-      fetch(`/v1/users/${userId}`, {
+      fetch(`${API_URL}/v1/users/${userId}`, {
         headers: { "x-access-token": token }
       })
         .then((res) => res.json())

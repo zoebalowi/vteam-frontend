@@ -1,3 +1,5 @@
+const API_URL = process.env.REACT_APP_API_URL || "";
+
 // Helper function to get headers with token
 const getHeaders = () => ({
   "Content-Type": "application/json",
@@ -7,7 +9,7 @@ const getHeaders = () => ({
 // Hämta betalningshistorik för en användare
 export async function fetchPaymentHistory(userId) {
   try {
-    const response = await fetch(`/v1/payment/user/${userId}`, {
+    const response = await fetch(`${API_URL}/v1/payment/user/${userId}`, {
       headers: getHeaders()
     });
     
@@ -29,7 +31,7 @@ export const fetchUserPayments = fetchPaymentHistory;
 // Hämta alla betalningar (admin)
 export async function fetchAllPayments() {
   try {
-    const response = await fetch("/v1/payment", {
+    const response = await fetch(`${API_URL}/v1/payment`, {
       headers: getHeaders()
     });
     
@@ -48,7 +50,7 @@ export async function fetchAllPayments() {
 // Ladda saldo till användarkonto
 export async function addBalance(userId, amount, paymentMethod = "card") {
   try {
-    const response = await fetch(`/v1/users/loadbalance/${amount}`, {
+    const response = await fetch(`${API_URL}/v1/users/loadbalance/${amount}`, {
       method: "POST",
       headers: getHeaders()
     });
@@ -67,7 +69,7 @@ export async function addBalance(userId, amount, paymentMethod = "card") {
 // Skapa betalning för hyra
 export async function createPayment(paymentData) {
   try {
-    const response = await fetch("/v1/payment/new", {
+    const response = await fetch(`${API_URL}/v1/payment/new`, {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify(paymentData)

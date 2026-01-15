@@ -1,7 +1,9 @@
+const API_URL = process.env.REACT_APP_API_URL || "";
+
 export async function fetchScooters() {
   try {
     const token = localStorage.getItem("token");
-    const response = await fetch("/v1/bike", {
+    const response = await fetch(`${API_URL}/v1/bike`, {
       headers: {
         "Content-Type": "application/json",
         "x-access-token": token || ""
