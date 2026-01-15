@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../style/home.css";
@@ -47,6 +46,7 @@ function Home() {
 
   // Filter rentals for current user only
   // TODO: Backend should have endpoint for user-specific rentals
+  // eslint-disable-next-line no-unused-vars
   const myRentals = userId ? rentals.filter(r => r.user_id === userId) : [];
   
   // Show all rentals for now (for testing)

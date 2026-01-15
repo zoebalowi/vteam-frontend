@@ -1,5 +1,3 @@
-import { parseCoordinates } from '../utils/geo';
-
 const defaultBase = "";
 const baseFromEnv = process.env.REACT_APP_API_URL || defaultBase;
 const base = baseFromEnv.replace(/\/$/, "");
