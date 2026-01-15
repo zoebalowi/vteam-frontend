@@ -1,9 +1,13 @@
 // Enkla funktioner för autenticering
-// Använd relativ URL så proxy funkar
+// Använd REACT_APP_API_URL om den finns, annars relativ URL så proxy funkar
+
+const API_URL = process.env.REACT_APP_API_URL || "";
+
 
 export async function registerUser(email, password) {
   try {
-    const response = await fetch(`/v1/register`, {
+    const url = API_URL ? `${API_URL}/v1/register` : `/v1/register`;
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -20,9 +24,11 @@ export async function registerUser(email, password) {
   }
 }
 
+
 export async function loginUser(email, password) {
   try {
-    const response = await fetch(`/v1/login`, {
+    const url = API_URL ? `${API_URL}/v1/login` : `/v1/login`;
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
